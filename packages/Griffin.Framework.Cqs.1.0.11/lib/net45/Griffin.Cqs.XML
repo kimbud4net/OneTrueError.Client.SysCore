@@ -1,0 +1,2207 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Griffin.Cqs</name>
+    </assembly>
+    <members>
+        <member name="T:Griffin.Cqs.Authorization.AuthorizationException">
+            <summary>
+            Failed to authorize user
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.Authorization.AuthorizationException.#ctor(System.Type,System.String[])">
+            <summary>
+            Create a new instance of <see cref="T:Griffin.Cqs.Authorization.AuthorizationException"/>.
+            </summary>
+            <param name="cqsObjectType">The command/query/event/request object</param>
+            <param name="requiredRoles">Roles that the user must have.</param>
+        </member>
+        <member name="T:Griffin.Cqs.Authorization.AuthorizationFilterContext">
+            <summary>
+                Context for <see cref="T:Griffin.Cqs.Authorization.IAuthorizationFilter" />
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.Authorization.AuthorizationFilterContext.#ctor(System.Object,System.Collections.Generic.IReadOnlyList{System.Object})">
+            <summary>
+                Create a new instance if <see cref="T:Griffin.Cqs.Authorization.AuthorizationFilterContext" />.
+            </summary>
+            <param name="cqsObject">Command/query/event/request to be executed</param>
+            <param name="handlers">List of identified handlers</param>
+        </member>
+        <member name="P:Griffin.Cqs.Authorization.AuthorizationFilterContext.CqsObject">
+            <summary>
+                Command/query/event/request to be executed
+            </summary>
+        </member>
+        <member name="P:Griffin.Cqs.Authorization.AuthorizationFilterContext.Handlers">
+            <summary>
+                List of identified handlers.
+            </summary>
+        </member>
+        <member name="T:Griffin.Cqs.Authorization.AuthorizeAttribute">
+            <summary>
+            Allows you to restrict access to different CQS objects.
+            </summary>
+            <remarks>
+            <para>Using multiple roles in the same attribute works like OR (i.e. user must be in one of the defined roles). Using multiple attributes
+            on the same object works like AND (i.e. the user must be in one of the roles that are defined in all of the used attributes)</para>
+            </remarks>
+            <example>
+            <para>Must be either in Administrator or SuperUser role.</para>
+            <code>
+            <![CDATA[
+            [Authorize("Administrator", "SuperUser")]
+            public class ActivateUser : Command
+            {
+                public ActivateUser(int userId)
+                {
+                    if (userId <= 0) throw new ArgumentOutOfRangeException("userId", "userId", "Invalid user id. Did you fail to parse it?");
+                    UserId = userId;
+                }
+            
+                public int UserId { get; private set; }
+            }
+            ]]>
+            </code>
+            <para>Must be both in Administrator and Organization1 role.</para>
+            <code>
+            <![CDATA[
+            [Authorize("Administrator")]
+            [Authorize("Organization1")]
+            public class ActivateUser : Command
+            {
+                public ActivateUser(int userId)
+                {
+                    if (userId <= 0) throw new ArgumentOutOfRangeException("userId", "userId", "Invalid user id. Did you fail to parse it?");
+                    UserId = userId;
+                }
+            
+                public int UserId { get; private set; }
+            }
+            ]]>
+            </code>
+            </example>
+        </member>
+        <member name="M:Griffin.Cqs.Authorization.AuthorizeAttribute.#ctor(System.String[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:Griffin.Cqs.Authorization.AuthorizeAttribute"/> class.
+            </summary>
+            <param name="roles">user roles.</param>
+            <exception cref="T:System.ArgumentNullException">roles</exception>
+        </member>
+        <member name="P:Griffin.Cqs.Authorization.AuthorizeAttribute.Roles">
+            <summary>
+                Gets a list of role names
+            </summary>
+            <remarks>
+                <para>
+                    Do not have to be traditional roles, you can use articial roles like "Organization1" to indicate that the user
+                    only have access
+                    to a specific organization in a multi-tenant solution.
+                </para>
+            </remarks>
+        </member>
+        <member name="T:Griffin.Cqs.Authorization.IAuthorizationFilter">
+            <summary>
+                Used to authorize inbound messages before they are executed by one of the bus's.
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.Authorization.IAuthorizationFilter.Authorize(Griffin.Cqs.Authorization.AuthorizationFilterContext)">
+            <summary>
+                Authorize context.
+            </summary>
+            <param name="context">Contains information about the object being executed.</param>
+        </member>
+        <member name="T:Griffin.Cqs.Authorization.IEntityWithRoles">
+            <summary>
+                Contract that defines that the CQS object contains a role and can therefore be validated against that role
+            </summary>
+            <remarks>
+                <para>
+                    This interface is used in conjuction with the <see cref="T:Griffin.Cqs.Authorization.AuthorizeAttribute" /> to be able to validate that the
+                    logged in user
+                    have access to the specified object.
+                </para>
+            </remarks>
+        </member>
+        <member name="P:Griffin.Cqs.Authorization.IEntityWithRoles.Roles">
+            <summary>
+                Gets a list of role names that the user MUST be member in.
+            </summary>
+            <remarks>
+                <para>
+                    Do not have to be traditional roles, you can use articial roles like "Organization1" to indicate that the user
+                    only have access
+                    to a specific organization in a multi-tenant solution.
+                </para>
+            </remarks>
+        </member>
+        <member name="T:Griffin.Cqs.Authorization.RoleAuthorizer">
+            <summary>
+                Uses the <see cref="T:Griffin.Cqs.Authorization.AuthorizeAttribute" /> to authorize users
+            </summary>
+            <remarks>
+                <para>
+                    Either the CQS object (like a command) or the handler can have been tagged with the attribute.
+                </para>
+                <para>
+                    Assign it to the <see cref="P:Griffin.Cqs.GlobalConfiguration.AuthorizationFilter" /> property to activate.
+                </para>
+            </remarks>
+        </member>
+        <member name="M:Griffin.Cqs.Authorization.RoleAuthorizer.Authorize(Griffin.Cqs.Authorization.AuthorizationFilterContext)">
+            <summary>
+                Authorize context.
+            </summary>
+            <param name="context">Contains information about the object being executed.</param>
+        </member>
+        <member name="T:Griffin.Cqs.BusFailedEventArgs">
+            <summary>
+                Used by bus:es when they fail due to an internal error.
+            </summary>
+            <remarks>
+            <para>
+            The actual bus can be retrived from the <code>sender</code> argument in the event delegate.
+            </para>
+            </remarks>
+        </member>
+        <member name="M:Griffin.Cqs.BusFailedEventArgs.#ctor(System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Griffin.Cqs.BusFailedEventArgs"/> class.
+            </summary>
+            <param name="exception">exception that the bus threw.</param>
+            <exception cref="T:System.ArgumentNullException">exception</exception>
+        </member>
+        <member name="P:Griffin.Cqs.BusFailedEventArgs.Exception">
+            <summary>
+            Kind of failure that the bus experienced.
+            </summary>
+        </member>
+        <member name="T:Griffin.Cqs.CommandHandlerFailedEventArgs">
+            <summary>
+                Used by <see cref="E:Griffin.Cqs.InversionOfControl.QueuedCommandBus.HandlerFailed" />.
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.CommandHandlerFailedEventArgs.#ctor(DotNetCqs.Command,System.Object,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Griffin.Cqs.CommandHandlerFailedEventArgs"/> class.
+            </summary>
+            <param name="command">command that was invoked.</param>
+            <param name="handler">handler that failed.</param>
+            <param name="exception">exception that the handler threw.</param>
+            <exception cref="T:System.ArgumentNullException">
+            command
+            or
+            handler
+            or
+            exception
+            </exception>
+        </member>
+        <member name="P:Griffin.Cqs.CommandHandlerFailedEventArgs.Command">
+            <summary>
+                command that we could not execute
+            </summary>
+        </member>
+        <member name="P:Griffin.Cqs.CommandHandlerFailedEventArgs.Handler">
+            <summary>
+                Handler that failed to execute the command
+            </summary>
+        </member>
+        <member name="P:Griffin.Cqs.CommandHandlerFailedEventArgs.Exception">
+            <summary>
+                Why the execution failed.
+            </summary>
+        </member>
+        <member name="T:Griffin.Cqs.GlobalConfiguration">
+            <summary>
+            Configuration for different aspects of this library
+            </summary>
+            <remarks>
+            <para>
+            Class is not thread safe, you are strongly encouraged to just do the configuration during app startup.
+            </para>
+            </remarks>
+        </member>
+        <member name="P:Griffin.Cqs.GlobalConfiguration.AuthorizationFilter">
+            <summary>
+            Use to authorize CQS objects before their handlers are executed.
+            </summary>
+        </member>
+        <member name="T:Griffin.Cqs.Http.CqsHttpClient">
+            <summary>
+                Will send Command/Query objects over HTTP to a server somewhere.
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.Http.CqsHttpClient.#ctor(System.Uri)">
+            <summary>
+                Initializes a new instance of the <see cref="T:Griffin.Cqs.Http.CqsHttpClient" /> class.
+            </summary>
+            <param name="uri">Uri to the HTTP server that can receive and process the CQS objects.</param>
+            <exception cref="T:System.ArgumentNullException">uri</exception>
+        </member>
+        <member name="M:Griffin.Cqs.Http.CqsHttpClient.#ctor(System.String)">
+            <summary>
+                Initializes a new instance of the <see cref="T:Griffin.Cqs.Http.CqsHttpClient" /> class.
+            </summary>
+            <param name="uri">Uri to the HTTP server that can receive and process the CQS objects.</param>
+            <exception cref="T:System.ArgumentNullException">uri</exception>
+        </member>
+        <member name="P:Griffin.Cqs.Http.CqsHttpClient.CommandUri">
+            <summary>
+                Sub path for commands (i.e. the full uri is <code>Uri + CommandUri</code>).
+            </summary>
+            <value>Default is empty.</value>
+        </member>
+        <member name="P:Griffin.Cqs.Http.CqsHttpClient.EventUri">
+            <summary>
+                Sub path for events (i.e. the full uri is <code>Uri + EventUri</code>).
+            </summary>
+            <value>Default is empty.</value>
+        </member>
+        <member name="P:Griffin.Cqs.Http.CqsHttpClient.QueryUri">
+            <summary>
+                Sub path for queries (i.e. the full uri is <code>Uri + QueryUri</code>).
+            </summary>
+            <value>Default is empty.</value>
+        </member>
+        <member name="P:Griffin.Cqs.Http.CqsHttpClient.RequestDecorator">
+            <summary>
+                Can be used to add additional headers etc.
+            </summary>
+            <remarks>
+                The header <c>X-Cqs-Type</c> contains that .NET type for the CQS object which is about to be sent. The body
+                contains the object as JSON.
+            </remarks>
+        </member>
+        <member name="P:Griffin.Cqs.Http.CqsHttpClient.CqsSerializer">
+            <summary>
+                Will use the internal JSON serializer if this property is not specified.
+            </summary>
+        </member>
+        <member name="P:Griffin.Cqs.Http.CqsHttpClient.RequestUri">
+            <summary>
+                Sub path for request/reply (i.e. the full uri is <code>Uri + RequestUri</code>).
+            </summary>
+            <value>Default is empty.</value>
+        </member>
+        <member name="M:Griffin.Cqs.Http.CqsHttpClient.ExecuteAsync``1(``0)">
+            <summary>
+                Send command to the HTTP server.
+            </summary>
+            <typeparam name="T">Type of command to execute.</typeparam>
+            <param name="command">Command to execute</param>
+            <returns>
+                Task which completes once the command has been delivered (and NOT when it has been executed).
+            </returns>
+            <remarks>
+                The actual execution of an command can be done anywhere at any time. Do not expect the command to be executed just
+                because this method returns. That just means
+                that the command have been successfully delivered (to a queue or another process etc) for execution.
+            </remarks>
+        </member>
+        <member name="M:Griffin.Cqs.Http.CqsHttpClient.PublishAsync``1(``0)">
+            <summary>
+                Publish a new application event.
+            </summary>
+            <typeparam name="TApplicationEvent">Type of event to publish.</typeparam>
+            <param name="e">Event to publish, must be serializable.</param>
+            <returns>
+                Task triggered once the event has been delivered.
+            </returns>
+        </member>
+        <member name="M:Griffin.Cqs.Http.CqsHttpClient.QueryAsync``1(DotNetCqs.Query{``0})">
+            <summary>
+                Send the query to the http server and wait for the result
+            </summary>
+            <typeparam name="TResult">Type of result that the query will return</typeparam>
+            <param name="query">Query to execute.</param>
+            <returns>
+                Task which will complete once we've got the result (or something failed, like a query wait timeout).
+            </returns>
+        </member>
+        <member name="M:Griffin.Cqs.Http.CqsHttpClient.ExecuteAsync``1(DotNetCqs.Request{``0})">
+            <summary>
+                Send the request to the http server and wait for the reply
+            </summary>
+            <typeparam name="TReply">Type of reply that we should get for the request.</typeparam>
+            <param name="request">Request that we want a reply for.</param>
+            <returns>
+                Task which will complete once we've got the result (or something failed, like a request wait timeout).
+            </returns>
+        </member>
+        <member name="T:Griffin.Cqs.Http.CqsHttpListener">
+            <summary>
+                Receives CQS objects over HTTP, processes them and return replies.
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.Http.CqsHttpListener.#ctor(Griffin.Cqs.CqsMessageProcessor)">
+            <summary>
+                Initializes a new instance of the <see cref="T:Griffin.Cqs.Http.CqsHttpListener" /> class.
+            </summary>
+            <param name="messageProcessor">Used to execute the actual messages.</param>
+        </member>
+        <member name="P:Griffin.Cqs.Http.CqsHttpListener.Authenticator">
+            <summary>
+                Assign to authenticate inbound requests.
+            </summary>
+        </member>
+        <member name="P:Griffin.Cqs.Http.CqsHttpListener.CqsSerializer">
+            <summary>
+                Will use the internal JSON serializer if this property is not specified.
+            </summary>
+        </member>
+        <member name="P:Griffin.Cqs.Http.CqsHttpListener.LocalPort">
+            <summary>
+                Port that the listener is accepting new connections on.
+            </summary>
+        </member>
+        <member name="P:Griffin.Cqs.Http.CqsHttpListener.Logger">
+            <summary>
+                Assign to get important log messages (typically errors)
+            </summary>
+        </member>
+        <member name="P:Griffin.Cqs.Http.CqsHttpListener.PrincipalFactory">
+            <summary>
+                Assign if you want to use something else than <c>GenericPrincipal</c>.
+            </summary>
+        </member>
+        <member name="P:Griffin.Cqs.Http.CqsHttpListener.RequestFilter">
+            <summary>
+                Use to filter inbound requests (or to perform authentication).
+            </summary>
+            <returns>
+                Response if you stopped the processing; otherwise <c>null</c> to allow this class to continue process the
+                inbound message.
+            </returns>
+        </member>
+        <member name="M:Griffin.Cqs.Http.CqsHttpListener.Map(System.Type)">
+            <summary>
+                Map a type directly.
+            </summary>
+            <param name="type">Must implement one of the handler interfaces.</param>
+            <exception cref="T:System.ArgumentNullException">type</exception>
+            <exception cref="T:System.ArgumentException">
+                ' + type.FullName + ' do not implement one of the handler interfaces.
+                or
+                ' + type.FullName + ' is abstract or an interface.
+            </exception>
+            <exception cref="T:System.InvalidOperationException">
+                Duplicate mappings for a name (two different handlers may not have
+                the same class name).
+            </exception>
+            <remarks>
+                Required if the HTTP client do not supply the full .NET type name (just the class name of the command/query).
+            </remarks>
+        </member>
+        <member name="M:Griffin.Cqs.Http.CqsHttpListener.ScanAssembly(System.Reflection.Assembly)">
+            <summary>
+                Scan assembly for handlers.
+            </summary>
+            <remarks>
+                Required if the HTTP client do not supply the full .NET type name (just the class name of the command/query).
+            </remarks>
+            <param name="assembly">The assembly to scan for handlers.</param>
+            <exception cref="T:System.InvalidOperationException">
+                Duplicate mappings for a name (two different handlers may not have
+                the same class name).
+            </exception>
+        </member>
+        <member name="M:Griffin.Cqs.Http.CqsHttpListener.Start(System.Net.IPEndPoint)">
+            <summary>
+                Endpoint to listen on.
+            </summary>
+            <param name="endPoint">The end point.</param>
+        </member>
+        <member name="T:Griffin.Cqs.Http.CqsObjectMapper">
+            <summary>
+                Used to map objects that is received from other languages (i.e. using different techniques to identify the .NET
+                type).
+            </summary>
+            <remarks>
+                <para>
+                    You typically include the .NET type (as a string) or the CQS object name (as long as you've mapped the .NET
+                    types using <c>Map()</c> or <c>ScanAssembly()</c>).
+                </para>
+            </remarks>
+        </member>
+        <member name="P:Griffin.Cqs.Http.CqsObjectMapper.Deserializer">
+            <summary>
+                Will use the internal JSON serializer if not specified.
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.Http.CqsObjectMapper.Deserialize(System.String,System.String)">
+            <summary>
+                Deserialize incoming object
+            </summary>
+            <param name="dotNetTypeOrCqsName">Name of the dot net type or CQS.</param>
+            <param name="json">Received JSON.</param>
+            <returns>CQS object</returns>
+        </member>
+        <member name="M:Griffin.Cqs.Http.CqsObjectMapper.IsCqsType(System.Type)">
+            <summary>
+                Determines whether the type implements the command handler interface
+            </summary>
+            <param name="cqsType">The type.</param>
+            <returns><c>true</c> if the objects is a command handler; otherwise <c>false</c></returns>
+        </member>
+        <member name="M:Griffin.Cqs.Http.CqsObjectMapper.Map(System.Type)">
+            <summary>
+                Map a type directly.
+            </summary>
+            <param name="type">Must implement one of the handler interfaces.</param>
+            <exception cref="T:System.ArgumentNullException">type</exception>
+            <exception cref="T:System.ArgumentException">
+                ' + type.FullName + ' do not implement one of the handler interfaces.
+                or
+                ' + type.FullName + ' is abstract or an interface.
+            </exception>
+            <exception cref="T:System.InvalidOperationException">
+                Duplicate mappings for a name (two different handlers may not have
+                the same class name).
+            </exception>
+            <remarks>
+                Required if the HTTP client do not supply the full .NET type name (just the class name of the command/query).
+            </remarks>
+        </member>
+        <member name="M:Griffin.Cqs.Http.CqsObjectMapper.ScanAssembly(System.Reflection.Assembly)">
+            <summary>
+                Scan assembly for handlers.
+            </summary>
+            <remarks>
+                Required if the HTTP client do not supply the full .NET type name (just the class name of the command/query).
+            </remarks>
+            <param name="assembly">The assembly to scan for handlers.</param>
+            <exception cref="T:System.InvalidOperationException">
+                Duplicate mappings for a name (two different handlers may not have
+                the same class name).
+            </exception>
+        </member>
+        <member name="T:Griffin.Cqs.Http.ICqsDeserializer">
+            <summary>
+                Used to serialize CQS DTOs.
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.Http.ICqsDeserializer.Deserialize(System.Type,System.String)">
+            <summary>
+                Deserialize inbound object
+            </summary>
+            <param name="type">Type of object</param>
+            <param name="message">serialized object</param>
+            <returns>Deserialized object</returns>
+        </member>
+        <member name="M:Griffin.Cqs.Http.ICqsDeserializer.Serialize(System.Object,System.String@)">
+            <summary>
+            Serialize outbound message
+            </summary>
+            <param name="message">The message.</param>
+            <param name="contentType">Content type to specify in outbound header (if any)</param>
+            <returns>Serialized message</returns>
+        </member>
+        <member name="T:Griffin.Cqs.Http.CqsWebSocketServer">
+            <summary>
+            CQS server that works over WebSockets.
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.Http.CqsWebSocketServer.#ctor(Griffin.Cqs.CqsMessageProcessor)">
+            <summary>
+                Initializes a new instance of the <see cref="T:Griffin.Cqs.Http.CqsHttpListener" /> class.
+            </summary>
+            <param name="messageProcessor">Used to execute the actual messages.</param>
+        </member>
+        <member name="P:Griffin.Cqs.Http.CqsWebSocketServer.Logger">
+            <summary>
+                Assign to get important log messages (typically errors)
+            </summary>
+        </member>
+        <member name="P:Griffin.Cqs.Http.CqsWebSocketServer.AuthenticationService">
+            <summary>
+                Assign to authenticate inbound requests.
+            </summary>
+        </member>
+        <member name="P:Griffin.Cqs.Http.CqsWebSocketServer.RequestFilter">
+            <summary>
+                Use to filter inbound requests (or to perform authentication).
+            </summary>
+            <returns>
+                Response if you stopped the processing; otherwise <c>null</c> to allow this class to contine process the
+                inbound message.
+            </returns>
+        </member>
+        <member name="P:Griffin.Cqs.Http.CqsWebSocketServer.PrincipalFactory">
+            <summary>
+                Assign if you want to use something else than <c>GenericPrincipal</c>.
+            </summary>
+        </member>
+        <member name="P:Griffin.Cqs.Http.CqsWebSocketServer.LocalPort">
+            <summary>
+                Port that the listener is accepting new connections on.
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.Http.CqsWebSocketServer.Map(System.Type)">
+            <summary>
+                Map a type directly.
+            </summary>
+            <param name="type">Must implement one of the handler interfaces.</param>
+            <exception cref="T:System.ArgumentNullException">type</exception>
+            <exception cref="T:System.ArgumentException">
+                ' + type.FullName + ' do not implement one of the handler interfaces.
+                or
+                ' + type.FullName + ' is abstract or an interface.
+            </exception>
+            <exception cref="T:System.InvalidOperationException">
+                Duplicate mappings for a name (two different handlers may not have
+                the same class name).
+            </exception>
+            <remarks>
+                Required if the HTTP client do not supply the full .NET type name (just the class name of the command/query).
+            </remarks>
+        </member>
+        <member name="M:Griffin.Cqs.Http.CqsWebSocketServer.ScanAssembly(System.Reflection.Assembly)">
+            <summary>
+                Scan assembly for handlers.
+            </summary>
+            <remarks>
+                Required if the HTTP client do not supply the full .NET type name (just the class name of the command/query).
+            </remarks>
+            <param name="assembly">The assembly to scan for handlers.</param>
+            <exception cref="T:System.InvalidOperationException">
+                Duplicate mappings for a name (two different handlers may not have
+                the same class name).
+            </exception>
+        </member>
+        <member name="M:Griffin.Cqs.Http.CqsWebSocketServer.Start(System.Net.IPEndPoint)">
+            <summary>
+                Endpoint to listen on.
+            </summary>
+            <param name="endPoint">The end point.</param>
+        </member>
+        <member name="M:Griffin.Cqs.Http.CqsWebSocketServer.IsCqsType(System.Type)">
+            <summary>
+                Determines whether the type implements the command handler interface
+            </summary>
+            <param name="cqsType">The type.</param>
+            <returns><c>true</c> if the objects is a command handler; otherwise <c>false</c></returns>
+        </member>
+        <member name="T:Griffin.Cqs.InversionOfControl.CommandInvokedEventArgs">
+            <summary>
+            A command have been successfully invoked
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.InversionOfControl.CommandInvokedEventArgs.#ctor(Griffin.Container.IContainerScope,DotNetCqs.Command)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Griffin.Cqs.InversionOfControl.CommandInvokedEventArgs"/> class.
+            </summary>
+            <param name="scope">Scope that the command was invoked in (scope is still open).</param>
+            <param name="command">Command that was executed.</param>
+            <exception cref="T:System.ArgumentNullException">
+            scope
+            or
+            command
+            </exception>
+        </member>
+        <member name="P:Griffin.Cqs.InversionOfControl.CommandInvokedEventArgs.Scope">
+            <summary>
+            Scope that the command was invoked in (scope is still open).
+            </summary>
+        </member>
+        <member name="P:Griffin.Cqs.InversionOfControl.CommandInvokedEventArgs.Command">
+            <summary>
+            Command that was executed.
+            </summary>
+        </member>
+        <member name="T:Griffin.Cqs.InversionOfControl.EventHandlerInfo">
+            <summary>
+            Contains information about all publishers
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.InversionOfControl.EventHandlerInfo.#ctor(System.Type,System.Int64)">
+            <summary>
+            Create a new instance of <see cref="T:Griffin.Cqs.InversionOfControl.EventHandlerInfo"/>.
+            </summary>
+            <param name="subscriberType">Type of class that received the event.</param>
+            <param name="processingTime">How many milliseconds it too to invoke the handler.</param>
+        </member>
+        <member name="P:Griffin.Cqs.InversionOfControl.EventHandlerInfo.SubscriberType">
+            <summary>
+            Subscriber type
+            </summary>
+        </member>
+        <member name="P:Griffin.Cqs.InversionOfControl.EventHandlerInfo.InvocationTime">
+            <summary>
+            Amount of time (in milliseconds) used to handle the event.
+            </summary>
+        </member>
+        <member name="P:Griffin.Cqs.InversionOfControl.EventHandlerInfo.Failure">
+            <summary>
+            Used internally to mark failures while executing handlers.
+            </summary>
+        </member>
+        <member name="T:Griffin.Cqs.InversionOfControl.EventHandlerRegistry">
+            <summary>
+                Keeps track of all event handler implementations. Typically to allow <see cref="T:Griffin.Cqs.InversionOfControl.SeparateScopesIocEventBus" /> to
+                use one scope
+                per handler without additional lookups.
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.InversionOfControl.EventHandlerRegistry.Lookup(System.Type)">
+            <summary>
+                Identify all handlers for an event.
+            </summary>
+            <param name="type">Event type</param>
+            <returns>List of types (concrete event handlers); empty list if there are no event handlers.</returns>
+        </member>
+        <member name="M:Griffin.Cqs.InversionOfControl.EventHandlerRegistry.Map``1(System.Type)">
+            <summary>
+                Map a handler to an event.
+            </summary>
+            <typeparam name="TApplicationEvent">Type of event being handled</typeparam>
+            <param name="concreateEventSubscriber">Concrete handler</param>
+            <exception cref="T:System.ArgumentException">
+                'concreateEventSubscriber' do not implement IApplicationEventSubscriber<![CDATA[<TApplicationEvent>]]>.
+            </exception>
+        </member>
+        <member name="M:Griffin.Cqs.InversionOfControl.EventHandlerRegistry.ScanAssembly(System.Reflection.Assembly)">
+            <summary>
+                Scan assembly after handlers.
+            </summary>
+            <param name="assembly">
+                Assembly to scan for implementations of
+                <c><![CDATA[IApplicationEventSubscriber<TEventType>]]></c>
+            </param>
+        </member>
+        <member name="T:Griffin.Cqs.InversionOfControl.IEventHandlerRegistry">
+            <summary>
+                Used to resolve all concrete event handlers for an application event.
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.InversionOfControl.IEventHandlerRegistry.Lookup(System.Type)">
+            <summary>
+                Identify all handlers for an event.
+            </summary>
+            <param name="type">Event type</param>
+            <returns>List of types (concrete event handlers); empty list if there are no event handlers.</returns>
+        </member>
+        <member name="T:Griffin.Cqs.InversionOfControl.IocBusBuilder">
+            <summary>
+                Uses to generate all all bus types.
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.InversionOfControl.IocBusBuilder.#ctor(Griffin.Container.IContainer)">
+            <summary>
+                Initializes a new instance of the <see cref="T:Griffin.Cqs.InversionOfControl.IocBusBuilder" /> class.
+            </summary>
+            <param name="container">The container.</param>
+        </member>
+        <member name="P:Griffin.Cqs.InversionOfControl.IocBusBuilder.CommandBus">
+            <summary>
+                Same instance is shared between everything that this class builds.
+            </summary>
+        </member>
+        <member name="P:Griffin.Cqs.InversionOfControl.IocBusBuilder.EventBus">
+            <summary>
+                Same instance is shared between everything that this class builds.
+            </summary>
+        </member>
+        <member name="P:Griffin.Cqs.InversionOfControl.IocBusBuilder.QueryBus">
+            <summary>
+                Same instance is shared between everything that this class builds.
+            </summary>
+        </member>
+        <member name="P:Griffin.Cqs.InversionOfControl.IocBusBuilder.RequestBus">
+            <summary>
+                Same instance is shared between everything that this class builds.
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.InversionOfControl.IocBusBuilder.BuildMessageProcessor">
+            <summary>
+                Builds the message processor.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Griffin.Cqs.InversionOfControl.QueryExecutedEventArgs">
+            <summary>
+            A query have been successfully invoked
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.InversionOfControl.QueryExecutedEventArgs.#ctor(Griffin.Container.IContainerScope,DotNetCqs.IQuery,System.Object)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Griffin.Cqs.InversionOfControl.QueryExecutedEventArgs"/> class.
+            </summary>
+            <param name="scope">Scope used to resolve the handler.</param>
+            <param name="query">Query to execute.</param>
+            <param name="handler">Query handler that executed the query (implements <see cref="T:DotNetCqs.IQueryHandler`2"/>).</param>
+            <exception cref="T:System.ArgumentNullException">
+            scope
+            or
+            query
+            </exception>
+        </member>
+        <member name="P:Griffin.Cqs.InversionOfControl.QueryExecutedEventArgs.Scope">
+            <summary>
+            Scope used to resolve the handler
+            </summary>
+        </member>
+        <member name="P:Griffin.Cqs.InversionOfControl.QueryExecutedEventArgs.Query">
+            <summary>
+            Query to execute
+            </summary>
+        </member>
+        <member name="P:Griffin.Cqs.InversionOfControl.QueryExecutedEventArgs.Handler">
+            <summary>
+            Query handler that executed the query (implements <see cref="T:DotNetCqs.IQueryHandler`2"/>).
+            </summary>
+        </member>
+        <member name="T:Griffin.Cqs.InversionOfControl.EventPublishedEventArgs">
+            <summary>
+                An event have been published.
+            </summary>
+            <remarks>
+                <para>Wether all handlers succeeded or not is specified by the <see cref="P:Griffin.Cqs.InversionOfControl.EventPublishedEventArgs.Successful" /> property.</para>
+            </remarks>
+        </member>
+        <member name="M:Griffin.Cqs.InversionOfControl.EventPublishedEventArgs.#ctor(Griffin.Container.IContainerScope,DotNetCqs.ApplicationEvent,System.Boolean,System.Collections.Generic.IReadOnlyCollection{Griffin.Cqs.InversionOfControl.EventHandlerInfo})">
+            <summary>
+                Initializes a new instance of the <see cref="T:Griffin.Cqs.InversionOfControl.EventPublishedEventArgs" /> class.
+            </summary>
+            <param name="scope">Scope used to resolve subscribers.</param>
+            <param name="applicationEvent">Published event.</param>
+            <param name="successful">All handlers processed the event successfully.</param>
+            <param name="eventInfo"></param>
+            <exception cref="T:System.ArgumentNullException">
+                scope
+                or
+                applicationEvent
+            </exception>
+        </member>
+        <member name="P:Griffin.Cqs.InversionOfControl.EventPublishedEventArgs.Scope">
+            <summary>
+                Scope used to resolve subscribers.
+            </summary>
+            <remarks>
+                <para>
+                    <c>null</c> if one scope is used per handler.
+                </para>
+            </remarks>
+        </member>
+        <member name="P:Griffin.Cqs.InversionOfControl.EventPublishedEventArgs.ApplicationEvent">
+            <summary>
+                Published event
+            </summary>
+        </member>
+        <member name="P:Griffin.Cqs.InversionOfControl.EventPublishedEventArgs.Successful">
+            <summary>
+                <c>true</c> = None of the subscribers failed.
+            </summary>
+        </member>
+        <member name="P:Griffin.Cqs.InversionOfControl.EventPublishedEventArgs.Handlers">
+            <summary>
+                All subscribers that got invoked for the event.
+            </summary>
+            <remarks>
+                <para>Subscribers are added in the order that they complete.</para>
+            </remarks>
+        </member>
+        <member name="T:Griffin.Cqs.InversionOfControl.IocCommandBus">
+            <summary>
+                Executes commands in a new scope.
+            </summary>
+            <remarks>
+                <para>
+                    Will create a new container child scope for every command that is executed. If you want to save a unit of work
+                    or similar just hookup on the <see cref="E:Griffin.Cqs.InversionOfControl.IocCommandBus.CommandInvoked" /> event which is fired
+                    upon successful execution.
+                </para>
+            </remarks>
+        </member>
+        <member name="M:Griffin.Cqs.InversionOfControl.IocCommandBus.#ctor(Griffin.Container.IContainer)">
+            <summary>
+                Initializes a new instance of the <see cref="T:Griffin.Cqs.InversionOfControl.IocCommandBus" /> class.
+            </summary>
+            <param name="container">Used to lookup <see cref="T:DotNetCqs.ICommandHandler`1" />.</param>
+            <exception cref="T:System.ArgumentNullException">container</exception>
+        </member>
+        <member name="M:Griffin.Cqs.InversionOfControl.IocCommandBus.ExecuteAsync``1(``0)">
+            <summary>
+                Request that a command should be executed.
+            </summary>
+            <typeparam name="T">Type of command to execute.</typeparam>
+            <param name="command">Command to execute</param>
+            <returns>
+                Task which completes once the command has been delivered (and NOT when it has been executed).
+            </returns>
+            <exception cref="T:System.ArgumentNullException">command</exception>
+            <remarks>
+                <para>
+                    The actual execution of an command can be done anywhere at any time. Do not expect the command to be executed
+                    just because this method returns. That just means
+                    that the command have been successfully delivered (to a queue or another process etc) for execution.
+                </para>
+            </remarks>
+        </member>
+        <member name="E:Griffin.Cqs.InversionOfControl.IocCommandBus.CommandInvoked">
+            <summary>
+                Command have been successfully executed and the scope will be disposed after this event has been triggered.
+            </summary>
+            <remarks>
+                <para>
+                    You can use the event to save a Unit Of Work or similar.
+                </para>
+            </remarks>
+            <example>
+                <code>
+            <![CDATA[
+            commandBus.CommandInvoked += (source,e) => e.Scope.ResolveAll<IUnitOfWork>().SaveChanges();
+            ]]>
+            </code>
+            </example>
+        </member>
+        <member name="E:Griffin.Cqs.InversionOfControl.IocCommandBus.ScopeCreated">
+            <summary>
+                A new IoC container scope have been created (a new scope is created every time a command is about to executed).
+            </summary>
+        </member>
+        <member name="T:Griffin.Cqs.InversionOfControl.IocEventBus">
+            <summary>
+                Uses your favorite inversion of control container to publish events.
+            </summary>
+            <remarks>
+                <para>
+                    The handlers will be invoked asynchronously, but the publish method will not return before all subscribers have
+                    finished their processing.
+                </para>
+            <para>This implementation uses a single IoC scope for all handlers. If you want to have a separate scope per handler use <see cref="T:Griffin.Cqs.InversionOfControl.SeparateScopesIocEventBus"/> instead.</para>
+            </remarks>
+        </member>
+        <member name="M:Griffin.Cqs.InversionOfControl.IocEventBus.#ctor(Griffin.Container.IContainer)">
+            <summary>
+                Initializes a new instance of the <see cref="T:Griffin.Cqs.InversionOfControl.IocEventBus" /> class.
+            </summary>
+            <param name="container">Used to resolve <c><![CDATA[IApplicationEventSubscriber<TApplicationEvent>]]></c>.</param>
+            <exception cref="T:System.ArgumentNullException">container</exception>
+        </member>
+        <member name="M:Griffin.Cqs.InversionOfControl.IocEventBus.PublishAsync``1(``0)">
+            <summary>
+                Publish a new application event.
+            </summary>
+            <typeparam name="TApplicationEvent">Type of event to publish.</typeparam>
+            <param name="e">Event to publish, must be serializable.</param>
+            <returns>
+                Task triggered once the event has been delivered.
+            </returns>
+        </member>
+        <member name="E:Griffin.Cqs.InversionOfControl.IocEventBus.EventPublished">
+            <summary>
+                Event have been executed and the scope will be disposed after this event has been triggered.
+            </summary>
+            <remarks>
+                <para>
+                    You can use this event to save a Unit Of Work or similar.
+                </para>
+            </remarks>
+            <example>
+                <code>
+            <![CDATA[
+            eventBus.EventPublished += (source,e) => e.Scope.ResolveAll<IUnitOfWork>().SaveChanges();
+            ]]>
+            </code>
+            </example>
+        </member>
+        <member name="E:Griffin.Cqs.InversionOfControl.IocEventBus.HandlerFailed">
+            <summary>
+                A specific handler failed to consume the application event.
+            </summary>
+            <remarks>
+                <para>
+                    We will not try to invoke the event again as one or more handlers may have consumed the event successfully.
+                </para>
+            </remarks>
+        </member>
+        <member name="E:Griffin.Cqs.InversionOfControl.IocEventBus.ScopeCreated">
+            <summary>
+                A new IoC container scope have been created (a new scope is created every time a command is about to executed).
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.InversionOfControl.IocEventBus.PublishEvent``1(DotNetCqs.IApplicationEventSubscriber{``0},``0,System.Collections.Generic.ICollection{Griffin.Cqs.InversionOfControl.EventHandlerInfo})">
+            <summary>
+                Purpose of this method is to be able to meassure invocation times.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="subscriber"></param>
+            <param name="e"></param>
+            <param name="eventInfo"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Griffin.Cqs.InversionOfControl.IocRequestReplyBus">
+            <summary>
+                Execute requests in child scopes.
+            </summary>
+            <remarks>
+                <para>
+                    Will create a new container child scope for every request that is executed. If you want to save a unit of work
+                    or similar just hookup on the <see cref="E:Griffin.Cqs.InversionOfControl.IocRequestReplyBus.RequestInvoked" /> event which is fired
+                    upon successful execution.
+                </para>
+            </remarks>
+        </member>
+        <member name="M:Griffin.Cqs.InversionOfControl.IocRequestReplyBus.#ctor(Griffin.Container.IContainer)">
+            <summary>
+                Initializes a new instance of the <see cref="T:Griffin.Cqs.InversionOfControl.IocRequestReplyBus" /> class.
+            </summary>
+            <param name="container">Used to resolve <c><![CDATA[IRequestHandler<,>]]></c>.</param>
+            <exception cref="T:System.ArgumentNullException">container</exception>
+        </member>
+        <member name="M:Griffin.Cqs.InversionOfControl.IocRequestReplyBus.ExecuteAsync``1(DotNetCqs.Request{``0})">
+            <summary>
+                Invoke a request and wait for the reply
+            </summary>
+            <typeparam name="TReply">Type of reply that we should get for the request.</typeparam>
+            <param name="request">Request that we want a reply for.</param>
+            <returns>
+                Task which will complete once we've got the result (or something failed, like a request wait timeout).
+            </returns>
+            <exception cref="T:System.ArgumentNullException">query</exception>
+        </member>
+        <member name="E:Griffin.Cqs.InversionOfControl.IocRequestReplyBus.RequestInvoked">
+            <summary>
+                Request have been successfully executed and the scope will be disposed after this event has been triggered.
+            </summary>
+            <remarks>
+                <para>
+                    You can use the event to save a Unit Of Work or similar.
+                </para>
+            </remarks>
+            <example>
+                <code>
+            <![CDATA[
+            requestReplyBus.RequestInvoked += (source,e) => e.Scope.ResolveAll<IUnitOfWork>().SaveChanges();
+            ]]>
+            </code>
+            </example>
+        </member>
+        <member name="E:Griffin.Cqs.InversionOfControl.IocRequestReplyBus.ScopeCreated">
+            <summary>
+                A new IoC container scope have been created (a new scope is created every time a command is about to executed).
+            </summary>
+        </member>
+        <member name="T:Griffin.Cqs.InversionOfControl.ScopeClosingEventArgs">
+            <summary>
+                Event arguments to represent when an IoC scope is about to be closed.
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.InversionOfControl.ScopeClosingEventArgs.#ctor(Griffin.Container.IContainerScope)">
+            <summary>
+                Created a new instance of <see cref="T:Griffin.Cqs.InversionOfControl.ScopeCreatedEventArgs" />.
+            </summary>
+            <param name="scope">created scope</param>
+        </member>
+        <member name="P:Griffin.Cqs.InversionOfControl.ScopeClosingEventArgs.Scope">
+            <summary>
+                Scopes about to be closed.
+            </summary>
+        </member>
+        <member name="P:Griffin.Cqs.InversionOfControl.ScopeClosingEventArgs.HandlersWasSuccessful">
+            <summary>
+                The CQS handlers executed successfully.
+            </summary>
+        </member>
+        <member name="T:Griffin.Cqs.InversionOfControl.ScopeCreatedEventArgs">
+            <summary>
+                Event arguments to represent when a new IoC scope have been created by some part of the library.
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.InversionOfControl.ScopeCreatedEventArgs.#ctor(Griffin.Container.IContainerScope)">
+            <summary>
+                Created a new instance of <see cref="T:Griffin.Cqs.InversionOfControl.ScopeCreatedEventArgs" />.
+            </summary>
+            <param name="scope">created scope</param>
+        </member>
+        <member name="P:Griffin.Cqs.InversionOfControl.ScopeCreatedEventArgs.Scope">
+            <summary>
+                Newly created scope.
+            </summary>
+        </member>
+        <member name="T:Griffin.Cqs.InversionOfControl.SeparateScopesIocEventBus">
+            <summary>
+                Uses your inversion of control container to identify all event handlers.
+            </summary>
+            <remarks>
+                <para>Creates one child scope per event handler each time and event is being published.</para>
+            </remarks>
+        </member>
+        <member name="M:Griffin.Cqs.InversionOfControl.SeparateScopesIocEventBus.#ctor(Griffin.Container.IContainer,Griffin.Cqs.InversionOfControl.IEventHandlerRegistry)">
+            <summary>
+                Initializes a new instance of the <see cref="T:Griffin.Cqs.InversionOfControl.IocEventBus" /> class.
+            </summary>
+            <param name="container">Used to resolve <c><![CDATA[IApplicationEventSubscriber<TApplicationEvent>]]></c>.</param>
+            <param name="registry">
+                Used to be able to identify all concrete events handler to be able to resolve them in seperate scopes. This also
+                means that each
+                handler have to be registered as itself in the container.
+            </param>
+            <exception cref="T:System.ArgumentNullException">container</exception>
+        </member>
+        <member name="M:Griffin.Cqs.InversionOfControl.SeparateScopesIocEventBus.PublishAsync``1(``0)">
+            <summary>
+                Publish a new application event.
+            </summary>
+            <typeparam name="TApplicationEvent">Type of event to publish.</typeparam>
+            <param name="e">Event to publish, must be serializable.</param>
+            <returns>
+                Task triggered once the event has been delivered.
+            </returns>
+        </member>
+        <member name="E:Griffin.Cqs.InversionOfControl.SeparateScopesIocEventBus.EventPublished">
+            <summary>
+                Event have been executed and the scope will be disposed after this event has been triggered.
+            </summary>
+            <remarks>
+                <para>
+                    You can use this event to save a Unit Of Work or similar.
+                </para>
+                <para>
+                    Are also invoked if on or more handlers failed.
+                </para>
+            </remarks>
+        </member>
+        <member name="E:Griffin.Cqs.InversionOfControl.SeparateScopesIocEventBus.HandlerFailed">
+            <summary>
+                A specific handler failed to consume the application event.
+            </summary>
+            <remarks>
+                <para>
+                    We will not try to invoke the event again as one or more handlers may have consumed the event successfully.
+                </para>
+            </remarks>
+        </member>
+        <member name="E:Griffin.Cqs.InversionOfControl.SeparateScopesIocEventBus.ScopeCreated">
+            <summary>
+                A new IoC container scope have been created (a new scope is created every time a command is about to executed).
+            </summary>
+        </member>
+        <member name="E:Griffin.Cqs.InversionOfControl.SeparateScopesIocEventBus.ScopeClosing">
+            <summary>
+                One of the created scopes is about to close.
+            </summary>
+            <remarks>
+                <para>
+                    Look at the <see cref="P:Griffin.Cqs.InversionOfControl.ScopeClosingEventArgs.HandlersWasSuccessful" /> property to determine if the handler(s)
+                    executed successfully.
+                </para>
+            </remarks>
+            <example>
+                <code>
+            <![CDATA[
+            eventBus.ScopeClosing += (source,e) => e.Scope.ResolveAll<IUnitOfWork>().SaveChanges();
+            ]]>
+            </code>
+            </example>
+        </member>
+        <member name="T:Griffin.Cqs.InversionOfControl.QueuedCommandBus">
+            <summary>
+                Queues commands and execute them in order in the background.
+            </summary>
+            <remarks>
+                <para>
+                    This bus stores all incoming commands in a queue. It then uses one or more Tasks to execute the incoming
+                    commands.
+                </para>
+            </remarks>
+        </member>
+        <member name="M:Griffin.Cqs.InversionOfControl.QueuedCommandBus.#ctor(Griffin.IQueue{DotNetCqs.Command},DotNetCqs.ICommandBus,System.Int32)">
+            <summary>
+                Initializes a new instance of the <see cref="T:Griffin.Cqs.InversionOfControl.QueuedCommandBus" /> class.
+            </summary>
+            <param name="queue">Used to store items before the command is executed.</param>
+            <param name="commandBus">
+                Used to execute a command once it arrives to the beginning of the queue.
+            </param>
+            <param name="workerCount">Amount of commands that can be executed simultaneously.</param>
+            <exception cref="T:System.ArgumentNullException">
+                queue
+                or
+                commandBus
+            </exception>
+        </member>
+        <member name="M:Griffin.Cqs.InversionOfControl.QueuedCommandBus.#ctor(DotNetCqs.ICommandBus)">
+            <summary>
+                Initializes a new instance of the <see cref="T:Griffin.Cqs.InversionOfControl.QueuedCommandBus" /> class.
+            </summary>
+            <param name="commandBus">
+                Used to execute a command once it arrives to the beginning of the queue.
+            </param>
+            <exception cref="T:System.ArgumentNullException">commandBus</exception>
+            <remarks>
+                <para>
+                    Uses a <![CDATA[ConcurrentQueue<T>]]> and 10 workers.
+                </para>
+            </remarks>
+        </member>
+        <member name="M:Griffin.Cqs.InversionOfControl.QueuedCommandBus.Start">
+            <summary>
+                Start bus (required to start processing queued commands)
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.InversionOfControl.QueuedCommandBus.Stop">
+            <summary>
+                Stop processing bus (will wait for the current command to be completed before shutting down)
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.InversionOfControl.QueuedCommandBus.ExecuteAsync``1(``0)">
+            <summary>
+                Request that a command should be executed.
+            </summary>
+            <typeparam name="T">Type of command to execute.</typeparam>
+            <param name="command">Command to execute</param>
+            <returns>
+                Task which completes once the command has been delivered (and NOT when it has been executed).
+            </returns>
+            <exception cref="T:System.ArgumentNullException">command</exception>
+            <remarks>
+                <para>
+                    The actual execution of an command can be done anywhere at any time. Do not expect the command to be executed
+                    just because this method returns. That just means
+                    that the command have been successfully delivered (to a queue or another process etc) for execution.
+                </para>
+            </remarks>
+        </member>
+        <member name="M:Griffin.Cqs.InversionOfControl.QueuedCommandBus.Dispose">
+            <summary>
+                Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+        </member>
+        <member name="E:Griffin.Cqs.InversionOfControl.QueuedCommandBus.HandlerFailed">
+            <summary>
+                A specific handler failed to consume the application event.
+            </summary>
+            <remarks>
+                <para>
+                    We will not try to invoke the event again as one or more handlers may have consumed the event successfully.
+                </para>
+            </remarks>
+        </member>
+        <member name="E:Griffin.Cqs.InversionOfControl.QueuedCommandBus.BusFailed">
+            <summary>
+                Bus failed to invoke an event.
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.InversionOfControl.QueuedCommandBus.ExecuteJobAsync">
+            <summary>
+            </summary>
+            <returns><c>true</c> if we found a command to execute.</returns>
+        </member>
+        <member name="T:Griffin.Cqs.InversionOfControl.QueuedEventBus">
+            <summary>
+                Event bus implementation using autofac as a container.
+            </summary>
+            <remarks>
+                <para>
+                    This bus will store all events on disk and then execute them on a background thread. This means that the events will be
+                    executed even if the application
+                    crashes (unless the application crashes during the actual execution of the event).
+                </para>
+            </remarks>
+        </member>
+        <member name="M:Griffin.Cqs.InversionOfControl.QueuedEventBus.#ctor(Griffin.IQueue{DotNetCqs.ApplicationEvent},DotNetCqs.IEventBus,System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Griffin.Cqs.InversionOfControl.QueuedEventBus" /> class.
+            </summary>
+            <param name="queue">The queue.</param>
+            <param name="innerBus">Bus used once it's time for an event to be executed.</param>
+            <param name="workerCount"></param>
+            <exception cref="T:System.ArgumentNullException">
+            queue
+            or
+            innerBus
+            </exception>
+        </member>
+        <member name="E:Griffin.Cqs.InversionOfControl.QueuedEventBus.EventPublished">
+            <summary>
+                Event have been executed and the scope will be disposed after this event has been triggered.
+            </summary>
+            <remarks>
+                <para>
+                    You can use this event to save a Unit Of Work or similar.
+                </para>
+            </remarks>
+            <example>
+                <code>
+            <![CDATA[
+            eventBus.EventPublished += (source,e) => e.Scope.ResolveAll<IUnitOfWork>().SaveChanges();
+            ]]>
+            </code>
+            </example>
+        </member>
+        <member name="M:Griffin.Cqs.InversionOfControl.QueuedEventBus.#ctor(DotNetCqs.IEventBus,System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Griffin.Cqs.InversionOfControl.QueuedEventBus" /> class.
+            </summary>
+            <param name="innerBus">Bus used once it's time for an event to be executed.</param>
+            <param name="workerCount"></param>
+            <exception cref="T:System.ArgumentNullException">container</exception>
+            <remarks>
+            Uses <![CDATA[ConcurrentQueue<T>]]> to store events before they are executed.
+            </remarks>
+        </member>
+        <member name="M:Griffin.Cqs.InversionOfControl.QueuedEventBus.PublishAsync``1(``0)">
+            <summary>
+                Publish a new application event.
+            </summary>
+            <typeparam name="TApplicationEvent">Type of event to publish.</typeparam>
+            <param name="e">Event to publish, must be serializable.</param>
+            <returns>
+                Task triggered once the event has been delivered.
+            </returns>
+        </member>
+        <member name="M:Griffin.Cqs.InversionOfControl.QueuedEventBus.Start">
+            <summary>
+                Start bus (required to start processing queued commands)
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.InversionOfControl.QueuedEventBus.Stop">
+            <summary>
+                Stop processing bus (will wait for the current command to be completed before shutting down)
+            </summary>
+        </member>
+        <member name="E:Griffin.Cqs.InversionOfControl.QueuedEventBus.HandlerFailed">
+            <summary>
+                A specific handler failed to consume the application event.
+            </summary>
+            <remarks>
+                <para>
+                    We will not try to invoke the event again as one or more handlers may have consumed the event successfully.
+                </para>
+            </remarks>
+        </member>
+        <member name="E:Griffin.Cqs.InversionOfControl.QueuedEventBus.BusFailed">
+            <summary>
+                Bus failed to invoke an event.
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.InversionOfControl.QueuedEventBus.ExecuteJobAsync">
+            <summary>
+            
+            </summary>
+            <returns><c>true</c> </returns>
+        </member>
+        <member name="M:Griffin.Cqs.InversionOfControl.QueuedEventBus.Dispose">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+        </member>
+        <member name="T:Griffin.Cqs.InversionOfControl.IocQueryBus">
+            <summary>
+                Uses an inversion of control container to resolve and execute query handlers.
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.InversionOfControl.IocQueryBus.#ctor(Griffin.Container.IContainer)">
+            <summary>
+                Initializes a new instance of the <see cref="T:Griffin.Cqs.InversionOfControl.IocQueryBus" /> class.
+            </summary>
+            <param name="container">The container.</param>
+            <exception cref="T:System.ArgumentNullException">container</exception>
+        </member>
+        <member name="E:Griffin.Cqs.InversionOfControl.IocQueryBus.QueryExecuted">
+            <summary>
+            A query have been executed.
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.InversionOfControl.IocQueryBus.QueryAsync``1(DotNetCqs.Query{``0})">
+            <summary>
+                Invoke a query and wait for the result
+            </summary>
+            <typeparam name="TResult">Type of result that the query will return</typeparam>
+            <param name="query">Query to execute.</param>
+            <returns>
+                Task which will complete once we've got the result (or something failed, like a query wait timeout).
+            </returns>
+            <exception cref="T:System.ArgumentNullException">query</exception>
+        </member>
+        <member name="E:Griffin.Cqs.InversionOfControl.IocQueryBus.ScopeCreated">
+            <summary>
+                A new IoC container scope have been created (a new scope is created every time a command is about to executed).
+            </summary>
+        </member>
+        <member name="T:Griffin.Cqs.InversionOfControl.MemoryQueue`1">
+            <summary>
+                Wraps <c><![CDATA[ConcurrentQueue<T>]]></c>
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:Griffin.Cqs.InversionOfControl.MemoryQueue`1.DequeueAsync">
+            <summary>
+                Dequeue an item from our queue.
+            </summary>
+            <returns>Dequeued item; <c>default(T)</c> if there are no more items in the queue.</returns>
+        </member>
+        <member name="M:Griffin.Cqs.InversionOfControl.MemoryQueue`1.EnqueueAsync(`0)">
+            <summary>
+                Enqueue item
+            </summary>
+            <param name="item"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Griffin.Cqs.InversionOfControl.RequestInvokedEventArgs">
+            <summary>
+                A request have been successfully invoked
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.InversionOfControl.RequestInvokedEventArgs.#ctor(Griffin.Container.IContainerScope,DotNetCqs.IRequest)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Griffin.Cqs.InversionOfControl.RequestInvokedEventArgs"/> class.
+            </summary>
+            <param name="scope">scope that was used to resolve the handler.</param>
+            <param name="request">Request that was processed.</param>
+            <exception cref="T:System.ArgumentNullException">
+            scope
+            or
+            request
+            </exception>
+        </member>
+        <member name="P:Griffin.Cqs.InversionOfControl.RequestInvokedEventArgs.Scope">
+            <summary>
+            scope that was used to resolve the handler
+            </summary>
+        </member>
+        <member name="P:Griffin.Cqs.InversionOfControl.RequestInvokedEventArgs.Request">
+            <summary>
+            Request that was processed
+            </summary>
+        </member>
+        <member name="T:Griffin.Cqs.CqsHandlerMissingException">
+            <summary>
+            Did not find a handler for a specific CQS object (i.e. a subclass of <see cref="T:DotNetCqs.Command"/>, <see cref="T:DotNetCqs.Query`1"/>, <see cref="T:DotNetCqs.ApplicationEvent"/> or <see cref="T:DotNetCqs.Request`1"/>).
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.CqsHandlerMissingException.#ctor(System.Type)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Griffin.Cqs.CqsHandlerMissingException"/> class.
+            </summary>
+            <param name="type">message that a handler was not found for.</param>
+        </member>
+        <member name="M:Griffin.Cqs.CqsHandlerMissingException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Griffin.Cqs.CqsHandlerMissingException"/> class.
+            </summary>
+            <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo" /> that holds the serialized object data about the exception being thrown.</param>
+            <param name="context">The <see cref="T:System.Runtime.Serialization.StreamingContext" /> that contains contextual information about the source or destination.</param>
+        </member>
+        <member name="P:Griffin.Cqs.CqsHandlerMissingException.CqsType">
+            <summary>
+            Full name of the type that we are missing a handler for.
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.CqsHandlerMissingException.GetObjectData(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            When overridden in a derived class, sets the <see cref="T:System.Runtime.Serialization.SerializationInfo"/> with information about the exception.
+            </summary>
+            <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"/> that holds the serialized object data about the exception being thrown. </param><param name="context">The <see cref="T:System.Runtime.Serialization.StreamingContext"/> that contains contextual information about the source or destination. </param><exception cref="T:System.ArgumentNullException">The <paramref name="info"/> parameter is a null reference (Nothing in Visual Basic). </exception><filterpriority>2</filterpriority><PermissionSet><IPermission class="System.Security.Permissions.FileIOPermission, mscorlib, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" version="1" Read="*AllFiles*" PathDiscovery="*AllFiles*"/><IPermission class="System.Security.Permissions.SecurityPermission, mscorlib, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" version="1" Flags="SerializationFormatter"/></PermissionSet>
+        </member>
+        <member name="T:Griffin.Cqs.EventHandlerFailedEventArgs">
+            <summary>
+                Used by <see cref="E:Griffin.Cqs.InversionOfControl.QueuedEventBus.HandlerFailed" />.
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.EventHandlerFailedEventArgs.#ctor(DotNetCqs.ApplicationEvent,System.Collections.Generic.IReadOnlyList{Griffin.Cqs.HandlerFailure},System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Griffin.Cqs.EventHandlerFailedEventArgs"/> class.
+            </summary>
+            <param name="applicationEvent">The application event that one or more subscribers failed to process.</param>
+            <param name="failures">One instance per handler.</param>
+            <param name="handlerCount">Total amount of subscribers (and not just the amount of failed handlers).</param>
+            <exception cref="T:System.ArgumentNullException">
+            applicationEvent
+            or
+            failures
+            </exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">handlerCount;Suspicions handler count</exception>
+        </member>
+        <member name="P:Griffin.Cqs.EventHandlerFailedEventArgs.ApplicationEvent">
+            <summary>
+                Event that some handlers failed to consume.
+            </summary>
+        </member>
+        <member name="P:Griffin.Cqs.EventHandlerFailedEventArgs.Failures">
+            <summary>
+                Handlers that failed to consume the event and why they failed
+            </summary>
+        </member>
+        <member name="P:Griffin.Cqs.EventHandlerFailedEventArgs.HandlerCount">
+            <summary>
+                Total amount of subscribers (and not just the amount of failed handlers)
+            </summary>
+            <remarks>
+                <para>
+                    Can be used to determine if all or just some handlers failed.
+                </para>
+            </remarks>
+        </member>
+        <member name="T:Griffin.Cqs.HandlerFailure">
+            <summary>
+                Information about why a handler failed.
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.HandlerFailure.#ctor(System.Object,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Griffin.Cqs.HandlerFailure"/> class.
+            </summary>
+            <param name="handler">The handler.</param>
+            <param name="exception">The exception.</param>
+            <exception cref="T:System.ArgumentNullException">
+            handler
+            or
+            exception
+            </exception>
+        </member>
+        <member name="P:Griffin.Cqs.HandlerFailure.Handler">
+            <summary>
+                Handler that failed
+            </summary>
+        </member>
+        <member name="P:Griffin.Cqs.HandlerFailure.Exception">
+            <summary>
+                Why the handler failed
+            </summary>
+        </member>
+        <member name="T:Griffin.Cqs.Net.ClientResponse">
+            <summary>
+            Response from CQS server.
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.Net.ClientResponse.#ctor(System.Guid,System.Object)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Griffin.Cqs.Net.ClientResponse"/> class.
+            </summary>
+            <param name="identifier">Identifier for the incoming message.</param>
+            <param name="body">The body, may be null.</param>
+        </member>
+        <member name="M:Griffin.Cqs.Net.ClientResponse.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Griffin.Cqs.Net.ClientResponse"/> class.
+            </summary>
+        </member>
+        <member name="P:Griffin.Cqs.Net.ClientResponse.Identifier">
+            <summary>
+                Id from inbound command/query. Allows us to match the response to a specific message.
+            </summary>
+        </member>
+        <member name="P:Griffin.Cqs.Net.ClientResponse.Body">
+            <summary>
+                Response if any
+            </summary>
+            <remarks>
+                <para>Is an exception if something failed at server side.</para>
+            </remarks>
+        </member>
+        <member name="T:Griffin.Cqs.Net.CqsClient">
+            <summary>
+                Client used to talk with the server defined in the <c>Griffin.Cqs.Server</c> nuget package.
+            </summary>
+            <remarks>
+                <para>
+                    Uses TCP and the MicroMsg protocol to transport messages to server side.
+                </para>
+            </remarks>
+        </member>
+        <member name="M:Griffin.Cqs.Net.CqsClient.#ctor">
+            <summary>
+                Initializes a new instance of the <see cref="T:Griffin.Cqs.Net.CqsClient" /> class.
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.Net.CqsClient.#ctor(System.Func{Griffin.Net.Protocols.Serializers.IMessageSerializer})">
+            <summary>
+                Initializes a new instance of the <see cref="T:Griffin.Cqs.Net.CqsClient" /> class.
+            </summary>
+            <param name="serializer">Serializer to be used for the transported messages.</param>
+        </member>
+        <member name="P:Griffin.Cqs.Net.CqsClient.Certificate">
+            <summary>
+                Assign if you want to use secure communication.
+            </summary>
+        </member>
+        <member name="P:Griffin.Cqs.Net.CqsClient.Authenticator">
+            <summary>
+                Set if you want to authenticate against a server.
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.Net.CqsClient.ExecuteAsync``1(``0)">
+            <summary>
+                Execute a command and wait for result (i.e. exception for failure or just return for success)
+            </summary>
+            <typeparam name="T">Type of command</typeparam>
+            <param name="command">command object</param>
+            <returns>completion task</returns>
+        </member>
+        <member name="M:Griffin.Cqs.Net.CqsClient.Dispose">
+            <summary>
+                Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.Net.CqsClient.PublishAsync``1(``0)">
+            <summary>
+                Publishes an application event (at server side)
+            </summary>
+            <typeparam name="TApplicationEvent">The type of the application event.</typeparam>
+            <param name="e">event to publish.</param>
+            <returns>completion task</returns>
+        </member>
+        <member name="M:Griffin.Cqs.Net.CqsClient.QueryAsync``1(DotNetCqs.Query{``0})">
+            <summary>
+                Queries the asynchronous.
+            </summary>
+            <typeparam name="TResult">The type of the result.</typeparam>
+            <param name="query">query to get a response for.</param>
+            <returns>completion task</returns>
+        </member>
+        <member name="M:Griffin.Cqs.Net.CqsClient.ExecuteAsync``1(DotNetCqs.Request{``0})">
+            <summary>
+                Execute a request and wait for the reply
+            </summary>
+            <typeparam name="TReply">The type of the reply.</typeparam>
+            <param name="request">Request to get a reply for.</param>
+            <returns>completion task</returns>
+        </member>
+        <member name="M:Griffin.Cqs.Net.CqsClient.StartAsync(System.Net.IPAddress,System.Int32)">
+            <summary>
+                Start client (will autoconnect if getting disconnected)
+            </summary>
+            <param name="address">The address for the CQS server.</param>
+            <param name="port">The port that the CQS server is listening on.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Griffin.Cqs.Net.CqsClient.OnMessageReceived(Griffin.Net.Channels.ITcpChannel,System.Object)">
+            <summary>
+                Always revoke since we do not want incoming messages to be queued up for receive operations.
+            </summary>
+            <param name="channel"></param>
+            <param name="message"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Griffin.Cqs.Net.CqsExtensions">
+            <summary>
+            Extension methods
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.Net.CqsExtensions.GetId(System.Object)">
+            <summary>
+            Gets the identifier from the CQS objects
+            </summary>
+            <param name="value">The value.</param>
+            <returns>message identifer</returns>
+            <exception cref="T:System.NotSupportedException">Is not one of the messages defined in DotNetCqs</exception>
+        </member>
+        <member name="T:Griffin.Cqs.Net.ServerSideException">
+            <summary>
+            Server side have thrown an exception
+            </summary>
+            <remarks>
+            <para>
+            Used to distinguish local exceptions (i.e. client failure) from server side failures.
+            </para>
+            </remarks>
+        </member>
+        <member name="M:Griffin.Cqs.Net.ServerSideException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Griffin.Cqs.Net.ServerSideException"/> class.
+            </summary>
+            <param name="message">The message that describes the error.</param>
+        </member>
+        <member name="M:Griffin.Cqs.Net.ServerSideException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Griffin.Cqs.Net.ServerSideException"/> class.
+            </summary>
+            <param name="message">The message.</param>
+            <param name="inner">The inner.</param>
+        </member>
+        <member name="M:Griffin.Cqs.Net.ServerSideException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Griffin.Cqs.Net.ServerSideException"/> class.
+            </summary>
+            <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo" /> that holds the serialized object data about the exception being thrown.</param>
+            <param name="context">The <see cref="T:System.Runtime.Serialization.StreamingContext" /> that contains contextual information about the source or destination.</param>
+        </member>
+        <member name="T:Griffin.Cqs.OnlyOneHandlerAllowedException">
+            <summary>
+            Some of the CQS messages allows only one handler to avoid ambiguity.
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.OnlyOneHandlerAllowedException.#ctor(System.Type)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Griffin.Cqs.OnlyOneHandlerAllowedException"/> class.
+            </summary>
+            <param name="cqsType">Type of the CQS.</param>
+        </member>
+        <member name="M:Griffin.Cqs.OnlyOneHandlerAllowedException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Griffin.Cqs.OnlyOneHandlerAllowedException"/> class.
+            </summary>
+            <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo" /> that holds the serialized object data about the exception being thrown.</param>
+            <param name="context">The <see cref="T:System.Runtime.Serialization.StreamingContext" /> that contains contextual information about the source or destination.</param>
+        </member>
+        <member name="T:Griffin.Cqs.CqsMessageProcessor">
+            <summary>
+            Used to execute CQS messages server side.
+            </summary>
+            <remarks>
+            <para>
+            You MUST configure the BUS properties for this class to work as expected.
+            </para>
+            </remarks>
+        </member>
+        <member name="M:Griffin.Cqs.CqsMessageProcessor.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Griffin.Cqs.CqsMessageProcessor"/> class.
+            </summary>
+        </member>
+        <member name="P:Griffin.Cqs.CqsMessageProcessor.CommandBus">
+            <summary>
+            Command bus implementation to use for inbound commands.
+            </summary>
+        </member>
+        <member name="P:Griffin.Cqs.CqsMessageProcessor.QueryBus">
+            <summary>
+            Query bus implementation to use for inbound queries.
+            </summary>
+        </member>
+        <member name="P:Griffin.Cqs.CqsMessageProcessor.EventBus">
+            <summary>
+            Event bus implementation to use for inbound application events.
+            </summary>
+        </member>
+        <member name="P:Griffin.Cqs.CqsMessageProcessor.RequestReplyBus">
+            <summary>
+            Request/reply bus implementation to use for inbound requests.
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.CqsMessageProcessor.ProcessAsync(System.Object)">
+            <summary>
+                ProcessAsync message
+            </summary>
+            <param name="message">CQS message to process</param>
+            <returns>If message processing can continue</returns>
+        </member>
+        <member name="T:Griffin.Cqs.Routing.AssemblyRule">
+            <summary>
+            Check if a CQS object is declared in the specified assembly.
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.Routing.AssemblyRule.#ctor(System.Reflection.Assembly)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Griffin.Cqs.Routing.AssemblyRule" /> class.
+            </summary>
+            <param name="assembly">The assembly.</param>
+            <exception cref="T:System.ArgumentNullException">assembly</exception>
+        </member>
+        <member name="M:Griffin.Cqs.Routing.AssemblyRule.Match(System.Object)">
+            <summary>
+            Match object against a rule
+            </summary>
+            <param name="cqsObject">The CQS object.</param>
+            <returns>
+              <c>true</c> if the CQS object is declared in our assembly; otherwise <c>false</c>.
+            </returns>
+        </member>
+        <member name="T:Griffin.Cqs.Routing.IRoutedBus">
+            <summary>
+            Used to determine if the bus that implements this interface can handle the specified CQS object.
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.Routing.IRoutedBus.Match(System.Object)">
+            <summary>
+            Match object against a rule
+            </summary>
+            <param name="cqsObject">The CQS object.</param>
+            <returns><c>true</c> if this bus can handle the specified object; otherwise <c>false</c>. </returns>
+        </member>
+        <member name="T:Griffin.Cqs.Routing.IRoutingRule">
+            <summary>
+            rule used to validate the CQS object
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.Routing.IRoutingRule.Match(System.Object)">
+            <summary>
+            Match object against a rule
+            </summary>
+            <param name="cqsObject">The CQS object.</param>
+            <returns><c>true</c> if this rule accepts the object; otherwise <c>false</c>. </returns>
+        </member>
+        <member name="T:Griffin.Cqs.Routing.RoutedCommandBus">
+            <summary>
+            Uses a routing rule to determine if this bus can handle the specified command
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.Routing.RoutedCommandBus.#ctor(Griffin.Cqs.Routing.IRoutingRule,DotNetCqs.ICommandBus)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Griffin.Cqs.Routing.RoutedCommandBus"/> class.
+            </summary>
+            <param name="routingRule">The routing rule.</param>
+            <param name="inner">Bus to invoke command on if the rule accepts the command.</param>
+        </member>
+        <member name="M:Griffin.Cqs.Routing.RoutedCommandBus.Match(System.Object)">
+            <summary>
+            Match object against a rule
+            </summary>
+            <param name="cqsObject">The CQS object.</param>
+            <returns>
+              <c>true</c> if this bus can handle the specified object; otherwise <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:Griffin.Cqs.Routing.RoutedCommandBus.ExecuteAsync``1(``0)">
+            <summary>
+            Request that a command should be executed.
+            </summary>
+            <typeparam name="T">Type of command to execute.</typeparam>
+            <param name="command">Command to execute</param>
+            <returns>
+            Task which completes once the command has been delivered (and NOT when it has been executed).
+            </returns>
+            <remarks>
+            The actual execution of an command can be done anywhere at any time. Do not expect the command to be executed just because this method returns. That just means
+            that the command have been successfully delivered (to a queue or another process etc) for execution.
+            </remarks>
+        </member>
+        <member name="T:Griffin.Cqs.Routing.RoutedEventBus">
+            <summary>
+            Uses a routing rule to determine if this bus can handle the specified command
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.Routing.RoutedEventBus.#ctor(Griffin.Cqs.Routing.IRoutingRule,DotNetCqs.IEventBus)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Griffin.Cqs.Routing.RoutedCommandBus"/> class.
+            </summary>
+            <param name="routingRule">The routing rule.</param>
+            <param name="inner">Bus to invoke command on if the rule accepts the command.</param>
+        </member>
+        <member name="M:Griffin.Cqs.Routing.RoutedEventBus.Match(System.Object)">
+            <summary>
+            Match object against a rule
+            </summary>
+            <param name="cqsObject">The CQS object.</param>
+            <returns>
+              <c>true</c> if this bus can handle the specified object; otherwise <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:Griffin.Cqs.Routing.RoutedEventBus.PublishAsync``1(``0)">
+            <summary>
+            Publish a new application event.
+            </summary>
+            <typeparam name="TApplicationEvent">Type of event to publish.</typeparam>
+            <param name="e">Event to publish, must be serializable.</param>
+            <returns>
+            Task triggered once the event has been delivered.
+            </returns>
+        </member>
+        <member name="T:Griffin.Cqs.Routing.RoutedQueryBus">
+            <summary>
+            Uses a routing rule to determine if this bus can handle the specified query
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.Routing.RoutedQueryBus.#ctor(Griffin.Cqs.Routing.IRoutingRule,DotNetCqs.IQueryBus)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Griffin.Cqs.Routing.RoutedCommandBus"/> class.
+            </summary>
+            <param name="routingRule">The routing rule.</param>
+            <param name="inner">Bus to invoke command on if the rule accepts the command.</param>
+        </member>
+        <member name="M:Griffin.Cqs.Routing.RoutedQueryBus.Match(System.Object)">
+            <summary>
+            Match object against a rule
+            </summary>
+            <param name="cqsObject">The CQS object.</param>
+            <returns>
+              <c>true</c> if this bus can handle the specified object; otherwise <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:Griffin.Cqs.Routing.RoutedQueryBus.QueryAsync``1(DotNetCqs.Query{``0})">
+            <summary>
+            Invoke a query and wait for the result
+            </summary>
+            <typeparam name="TResult">Type of result that the query will return</typeparam>
+            <param name="query">Query to execute.</param>
+            <returns>
+            Task which will complete once we've got the result (or something failed, like a query wait timeout).
+            </returns>
+        </member>
+        <member name="T:Griffin.Cqs.Routing.RoutedRequestReplyBus">
+            <summary>
+            Uses a routing rule to determine if this bus can handle the specified request.
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.Routing.RoutedRequestReplyBus.#ctor(Griffin.Cqs.Routing.IRoutingRule,DotNetCqs.IRequestReplyBus)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Griffin.Cqs.Routing.RoutedCommandBus"/> class.
+            </summary>
+            <param name="routingRule">The routing rule.</param>
+            <param name="inner">Bus to invoke request on if the rule accepts the request.</param>
+        </member>
+        <member name="M:Griffin.Cqs.Routing.RoutedRequestReplyBus.Match(System.Object)">
+            <summary>
+            Match object against a rule
+            </summary>
+            <param name="cqsObject">The CQS object.</param>
+            <returns>
+              <c>true</c> if this bus can handle the specified object; otherwise <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:Griffin.Cqs.Routing.RoutedRequestReplyBus.ExecuteAsync``1(DotNetCqs.Request{``0})">
+            <summary>
+            Invoke a request and wait for the reply
+            </summary>
+            <typeparam name="TReply">Type of reply that we should get for the request.</typeparam>
+            <param name="request">Request that we want a reply for.</param>
+            <returns>
+            Task which will complete once we've got the result (or something failed, like a request wait timeout).
+            </returns>
+        </member>
+        <member name="T:Griffin.Cqs.Routing.RoutedCqsService">
+            <summary>
+                A services that routes objects for all types of bus's.
+            </summary>
+        </member>
+        <member name="M:Griffin.Cqs.Routing.RoutedCqsService.ExecuteAsync``1(``0)">
+            <summary>
+                Request that a command should be executed.
+            </summary>
+            <typeparam name="T">Type of command to execute.</typeparam>
+            <param name="command">Command to execute</param>
+            <returns>
+                Task which completes once the command has been delivered (and NOT when it has been executed).
+            </returns>
+            <exception cref="T:Griffin.Cqs.CqsHandlerMissingException">Missing a route</exception>
+            <remarks>
+                The actual execution of an command can be done anywhere at any time. Do not expect the command to be executed just
+                because this method returns. That just means
+                that the command have been successfully delivered (to a queue or another process etc) for execution.
+            </remarks>
+        </member>
+        <member name="M:Griffin.Cqs.Routing.RoutedCqsService.PublishAsync``1(``0)">
+            <summary>
+                Publish a new application event.
+            </summary>
+            <typeparam name="TApplicationEvent">Type of event to publish.</typeparam>
+            <param name="e">Event to publish, must be serializable.</param>
+            <returns>
+                Task triggered once the event has been delivered.
+            </returns>
+            <exception cref="T:Griffin.Cqs.CqsHandlerMissingException">Missing a route</exception>
+        </member>
+        <member name="M:Griffin.Cqs.Routing.RoutedCqsService.QueryAsync``1(DotNetCqs.Query{``0})">
+            <summary>
+                Invoke a query and wait for the result
+            </summary>
+            <typeparam name="TResult">Type of result that the query will return</typeparam>
+            <param name="query">Query to execute.</param>
+            <returns>
+                Task which will complete once we've got the result (or something failed, like a query wait timeout).
+            </returns>
+            <exception cref="T:Griffin.Cqs.CqsHandlerMissingException">Missing a route</exception>
+        </member>
+        <member name="M:Griffin.Cqs.Routing.RoutedCqsService.ExecuteAsync``1(DotNetCqs.Request{``0})">
+            <summary>
+                Invoke a request and wait for the reply
+            </summary>
+            <typeparam name="TReply">Type of reply that we should get for the request.</typeparam>
+            <param name="request">Request that we want a reply for.</param>
+            <returns>
+                Task which will complete once we've got the result (or something failed, like a request wait timeout).
+            </returns>
+            <exception cref="T:Griffin.Cqs.CqsHandlerMissingException">Missing a route</exception>
+        </member>
+        <member name="M:Griffin.Cqs.Routing.RoutedCqsService.RouteCommands(System.Reflection.Assembly,DotNetCqs.ICommandBus)">
+            <summary>
+                Routes commands that are declared in the specified assembly.
+            </summary>
+            <param name="assembly">The assembly.</param>
+            <param name="destination">The destination.</param>
+        </member>
+        <member name="M:Griffin.Cqs.Routing.RoutedCqsService.RouteCommands(Griffin.Cqs.Routing.IRoutingRule,DotNetCqs.ICommandBus)">
+            <summary>
+                Route commands using a custom rule.
+            </summary>
+            <param name="rule">The rule.</param>
+            <param name="destination">The destination to invoke if the rule accepts the CQS object.</param>
+            <exception cref="T:System.ArgumentNullException">
+                rule
+                or
+                destination
+            </exception>
+        </member>
+        <member name="M:Griffin.Cqs.Routing.RoutedCqsService.RouteEvents(System.Reflection.Assembly,DotNetCqs.IEventBus)">
+            <summary>
+                Routes events that are declared in the specified assembly.
+            </summary>
+            <param name="assembly">The assembly.</param>
+            <param name="destination">The destination.</param>
+        </member>
+        <member name="M:Griffin.Cqs.Routing.RoutedCqsService.RouteEvents(Griffin.Cqs.Routing.IRoutingRule,DotNetCqs.IEventBus)">
+            <summary>
+                Route events using a custom rule.
+            </summary>
+            <param name="rule">The rule.</param>
+            <param name="destination">The destination to invoke if the rule accepts the CQS object.</param>
+            <exception cref="T:System.ArgumentNullException">
+                rule
+                or
+                destination
+            </exception>
+        </member>
+        <member name="M:Griffin.Cqs.Routing.RoutedCqsService.RouteQueries(System.Reflection.Assembly,DotNetCqs.IQueryBus)">
+            <summary>
+                Routes queries that are declared in the specified assembly.
+            </summary>
+            <param name="assembly">The assembly.</param>
+            <param name="destination">The destination.</param>
+        </member>
+        <member name="M:Griffin.Cqs.Routing.RoutedCqsService.RouteQueries(Griffin.Cqs.Routing.IRoutingRule,DotNetCqs.IQueryBus)">
+            <summary>
+                Route queries using a custom rule.
+            </summary>
+            <param name="rule">The rule.</param>
+            <param name="destination">The destination to invoke if the rule accepts the CQS object.</param>
+            <exception cref="T:System.ArgumentNullException">
+                rule
+                or
+                destination
+            </exception>
+        </member>
+        <member name="M:Griffin.Cqs.Routing.RoutedCqsService.RouteRequests(System.Reflection.Assembly,DotNetCqs.IRequestReplyBus)">
+            <summary>
+                Routes requests that are declared in the specified assembly.
+            </summary>
+            <param name="assembly">The assembly.</param>
+            <param name="destination">The destination.</param>
+        </member>
+        <member name="M:Griffin.Cqs.Routing.RoutedCqsService.RouteRequests(Griffin.Cqs.Routing.IRoutingRule,DotNetCqs.IRequestReplyBus)">
+            <summary>
+                Route requests using a custom rule.
+            </summary>
+            <param name="rule">The rule.</param>
+            <param name="destination">The destination to invoke if the rule accepts the CQS object.</param>
+            <exception cref="T:System.ArgumentNullException">
+                rule
+                or
+                destination
+            </exception>
+        </member>
+        <member name="T:Griffin.Cqs.Simple.SimpleRequestReplyBus">
+            <summary>
+                Uses reflection to find request/reply handlers.
+            </summary>
+            <remarks>
+                <para>
+                    The handlers must have a default public constructor.
+                </para>
+                <para>
+                    This implementation creates a new instance of the handler every time a request is invoked. Handlers that
+                    implement <see cref="T:System.IDisposable" /> will automatically
+                    be cleaned up when the query has been executed.
+                </para>
+            </remarks>
+        </member>
+        <member name="M:Griffin.Cqs.Simple.SimpleRequestReplyBus.ExecuteAsync``1(DotNetCqs.Request{``0})">
+            <summary>
+                Execute request and return a reply
+            </summary>
+            <typeparam name="TReply">reply that the request will return.</typeparam>
+            <param name="request">Request to execute</param>
+            <returns>
+                Task which completes once the request has been executed (and a reply has been fetched).
+            </returns>
+            <exception cref="T:System.ArgumentNullException">query</exception>
+        </member>
+        <member name="M:Griffin.Cqs.Simple.SimpleRequestReplyBus.Register(System.Reflection.Assembly)">
+            <summary>
+                Register all event handlers that exist in the specified assembly.
+            </summary>
+            <param name="assembly">Assembly to scan for handlers (implementing <see cref="T:DotNetCqs.IRequestHandler`2" />).</param>
+        </member>
+        <member name="M:Griffin.Cqs.Simple.SimpleRequestReplyBus.Register``3">
+            <summary>
+                Register a handler.
+            </summary>
+            <typeparam name="THandler">Handler</typeparam>
+            <typeparam name="TQuery">Request that the handler is for</typeparam>
+            <typeparam name="TResult">Reply that the request handler will return.</typeparam>
+            <example>
+                <code>
+            <![CDATA[
+            simpleRequestBus.Register<LoginHandler, Login, LoginResult>();
+            ]]>
+            </code>
+            </example>
+        </member>
+        <member name="M:Griffin.Cqs.Simple.SimpleRequestReplyBus.IsRequestHandler(System.Type)">
+            <summary>
+            Determines whether the specified type implements the request handler interface.
+            </summary>
+            <param name="type">The type.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Griffin.Cqs.Simple.SimpleQueryBus">
+            <summary>
+                Uses reflection to find query handlers.
+            </summary>
+            <remarks>
+                <para>
+                    The handlers must have a default public constructor.
+                </para>
+                <para>
+                    This implementation creates a new instance of the handler every time a query is invoked. Handlers that
+                    implement <see cref="T:System.IDisposable" /> will automatically
+                    be cleaned up when the query has been executed.
+                </para>
+            </remarks>
+        </member>
+        <member name="M:Griffin.Cqs.Simple.SimpleQueryBus.QueryAsync``1(DotNetCqs.Query{``0})">
+            <summary>
+                Request that a query should be executed.
+            </summary>
+            <typeparam name="TResult">Result that the query will return.</typeparam>
+            <param name="query">Query to execute</param>
+            <returns>
+                Task which completes once the query has been executed (and a response have been fetched).
+            </returns>
+            <exception cref="T:System.ArgumentNullException">query</exception>
+        </member>
+        <member name="M:Griffin.Cqs.Simple.SimpleQueryBus.Register(System.Reflection.Assembly)">
+            <summary>
+                Register all event handlers that exist in the specified assembly.
+            </summary>
+            <param name="assembly">Assembly to scan for handlers (implementing <see cref="T:DotNetCqs.IQueryHandler`2" />).</param>
+        </member>
+        <member name="M:Griffin.Cqs.Simple.SimpleQueryBus.Register``3">
+            <summary>
+                Register a handler.
+            </summary>
+            <typeparam name="THandler">Handler</typeparam>
+            <typeparam name="TQuery">Query that the handler is for</typeparam>
+            <typeparam name="TResult">Response that the query returns</typeparam>
+            <example>
+                <code>
+            <![CDATA[
+            simpleCmdBus.Register<FindUsersHandler, FindUsers, User[]>();
+            ]]>
+            </code>
+            </example>
+        </member>
+        <member name="M:Griffin.Cqs.Simple.SimpleQueryBus.IsQueryHandler(System.Type)">
+            <summary>
+            Determines whether the type implements the query handler interface
+            </summary>
+            <param name="type">Type to check.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Griffin.Cqs.Simple.SimpleEventBus">
+            <summary>
+                Uses reflection to find event subscribers.
+            </summary>
+            <remarks>
+                <para>
+                    The handlers must have a default public constructor.
+                </para>
+                <para>
+                    This implementation creates a new instance of the handler every time a event is invoked. Handlers that
+                    implement <see cref="T:System.IDisposable" /> will automatically
+                    be cleaned up when the event has been executed.
+                </para>
+            </remarks>
+        </member>
+        <member name="M:Griffin.Cqs.Simple.SimpleEventBus.PublishAsync``1(``0)">
+            <summary>
+                Publish an event.
+            </summary>
+            <typeparam name="T">Type of event to execute.</typeparam>
+            <param name="appEvent">Event to execute</param>
+            <returns>
+                Task which completes once the event has been published.
+            </returns>
+            <exception cref="T:System.ArgumentNullException">event</exception>
+        </member>
+        <member name="M:Griffin.Cqs.Simple.SimpleEventBus.Register(System.Reflection.Assembly)">
+            <summary>
+                Register all event handlers that exist in the specified assembly.
+            </summary>
+            <param name="assembly">Assembly to scan for handlers (implementing <see cref="T:DotNetCqs.IApplicationEventSubscriber`1" />).</param>
+        </member>
+        <member name="M:Griffin.Cqs.Simple.SimpleEventBus.Register``2">
+            <summary>
+                Register a handler.
+            </summary>
+            <typeparam name="THandler">Handler</typeparam>
+            <typeparam name="TEvent">Event that the handler is for</typeparam>
+            <example>
+                <code>
+            <![CDATA[
+            simpleCmdBus.Register<MySubscriber, UserCreated>();
+            ]]>
+            </code>
+            </example>
+        </member>
+        <member name="M:Griffin.Cqs.Simple.SimpleEventBus.IsEventHandler(System.Type)">
+            <summary>
+            Determines whether type implements the event handler interface.
+            </summary>
+            <param name="type">The type.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Griffin.Cqs.Simple.SimpleCommandBus">
+            <summary>
+                Uses reflection to find command handlers.
+            </summary>
+            <remarks>
+                <para>
+                    The handlers must have a default public constructor.
+                </para>
+                <para>
+                    This implementation creates a new instance of the handler every time a command is invoked. Handlers that
+                    implement <see cref="T:System.IDisposable" /> will automatically
+                    be cleaned up when the command has been executed.
+                </para>
+            </remarks>
+        </member>
+        <member name="M:Griffin.Cqs.Simple.SimpleCommandBus.ExecuteAsync``1(``0)">
+            <summary>
+                Request that a command should be executed.
+            </summary>
+            <typeparam name="T">Type of command to execute.</typeparam>
+            <param name="command">Command to execute</param>
+            <returns>
+                Task which completes once the command has been delivered (and NOT when it has been executed).
+            </returns>
+            <exception cref="T:System.ArgumentNullException">command</exception>
+            <remarks>
+                <para>
+                    The actual execution of an command can be done anywhere at any time. Do not expect the command to be executed
+                    just because this method returns. That just means
+                    that the command have been successfully delivered (to a queue or another process etc) for execution.
+                </para>
+            </remarks>
+        </member>
+        <member name="M:Griffin.Cqs.Simple.SimpleCommandBus.Register(System.Reflection.Assembly)">
+            <summary>
+                Register all command handlers that exist in the specified assembly.
+            </summary>
+            <param name="assembly">Assembly to scan for command handlers (implementing <see cref="T:DotNetCqs.ICommandHandler`1" />).</param>
+        </member>
+        <member name="M:Griffin.Cqs.Simple.SimpleCommandBus.Register``2">
+            <summary>
+                Register a command handler
+            </summary>
+            <typeparam name="THandler">Handler</typeparam>
+            <typeparam name="TCommand">Command that the handler is for</typeparam>
+            <example>
+                <code>
+            <![CDATA[
+            simpleCmdBus.Register<MyHandler, MyCommand>();
+            ]]>
+            </code>
+            </example>
+        </member>
+        <member name="M:Griffin.Cqs.Simple.SimpleCommandBus.IsCommandHandler(System.Type)">
+            <summary>
+            Determine if the given class is a command handler.
+            </summary>
+            <param name="type">type to check</param>
+            <returns><c>true</c> if it's an command handler.</returns>
+        </member>
+    </members>
+</doc>

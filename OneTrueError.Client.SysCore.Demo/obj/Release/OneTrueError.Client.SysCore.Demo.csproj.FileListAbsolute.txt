@@ -1,0 +1,12 @@
+D:\VSO\build4net\Cox\OneTrueError\OneTrueError.SysCore\OneTrueError.Client.SysCore.Demo\bin\Release\OneTrueError.Client.SysCore.Demo.exe.config
+D:\VSO\build4net\Cox\OneTrueError\OneTrueError.SysCore\OneTrueError.Client.SysCore.Demo\bin\Release\OneTrueError.Client.SysCore.Demo.exe
+D:\VSO\build4net\Cox\OneTrueError\OneTrueError.SysCore\OneTrueError.Client.SysCore.Demo\bin\Release\OneTrueError.Client.SysCore.Demo.pdb
+D:\VSO\build4net\Cox\OneTrueError\OneTrueError.SysCore\OneTrueError.Client.SysCore.Demo\bin\Release\Newtonsoft.Json.dll
+D:\VSO\build4net\Cox\OneTrueError\OneTrueError.SysCore\OneTrueError.Client.SysCore.Demo\bin\Release\OneTrueError.Client.dll
+D:\VSO\build4net\Cox\OneTrueError\OneTrueError.SysCore\OneTrueError.Client.SysCore.Demo\bin\Release\OneTrueError.Client.SysCore.dll
+D:\VSO\build4net\Cox\OneTrueError\OneTrueError.SysCore\OneTrueError.Client.SysCore.Demo\bin\Release\OneTrueError.Client.SysCore.pdb
+D:\VSO\build4net\Cox\OneTrueError\OneTrueError.SysCore\OneTrueError.Client.SysCore.Demo\bin\Release\Newtonsoft.Json.xml
+D:\VSO\build4net\Cox\OneTrueError\OneTrueError.SysCore\OneTrueError.Client.SysCore.Demo\bin\Release\OneTrueError.Client.xml
+D:\VSO\build4net\Cox\OneTrueError\OneTrueError.SysCore\OneTrueError.Client.SysCore.Demo\obj\Release\OneTrueError.Client.SysCore.Demo.csprojResolveAssemblyReference.cache
+D:\VSO\build4net\Cox\OneTrueError\OneTrueError.SysCore\OneTrueError.Client.SysCore.Demo\obj\Release\OneTrueError.Client.SysCore.Demo.exe
+D:\VSO\build4net\Cox\OneTrueError\OneTrueError.SysCore\OneTrueError.Client.SysCore.Demo\obj\Release\OneTrueError.Client.SysCore.Demo.pdb

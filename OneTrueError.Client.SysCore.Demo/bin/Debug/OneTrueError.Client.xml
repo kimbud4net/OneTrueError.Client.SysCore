@@ -1,0 +1,1989 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>OneTrueError.Client</name>
+    </assembly>
+    <members>
+        <member name="T:OneTrueError.Client.Config.NamespaceDoc">
+            <summary>
+                Main configuration objects. Assessible through the <see cref="P:OneTrueError.Client.OneTrue.Configuration" /> property.
+            </summary>
+        </member>
+        <member name="T:OneTrueError.Client.Config.OneTrueConfiguration">
+            <summary>
+                Configuration root object.
+            </summary>
+        </member>
+        <member name="F:OneTrueError.Client.Config.OneTrueConfiguration._userInteraction">
+            <summary>
+                Configure how the reporting UI will interact with the user.
+            </summary>
+        </member>
+        <member name="M:OneTrueError.Client.Config.OneTrueConfiguration.#ctor">
+            <summary>
+                Creates a new instance of <see cref="T:OneTrueError.Client.Config.OneTrueConfiguration" />.
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.Config.OneTrueConfiguration.ContextProviders">
+            <summary>
+                Used to add custom context info providers.
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.Config.OneTrueConfiguration.FilterCollection">
+            <summary>
+                Used to decide which reports can be uploaded (for instance to sample reports in high volume systems).
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.Config.OneTrueConfiguration.MaxNumberOfPropertiesPerCollection">
+            <summary>
+                Limit the amount of properties that can be collected per context collection.
+            </summary>
+            <remarks>
+                <para>
+                    Some collections can contain thousands of properties when building collections by reflecting objects. Those
+                    will take time to process and analyze by the server
+                    when a lot of reports are uploaded for the same incident. To limit that you can specify a property limit wich
+                    will make the <see cref="T:OneTrueError.Client.Converters.ObjectToContextCollectionConverter" />
+                    stop after a certain amount of properties (when invoked from within the library).
+                </para>
+            </remarks>
+            <value>
+            Default is 100.
+            </value>
+        </member>
+        <member name="P:OneTrueError.Client.Config.OneTrueConfiguration.QueueReports">
+            <summary>
+                Queue reports and upload them in the background.
+            </summary>
+            <remarks>
+                <para>
+                    This option is great if you do not want to freeze the UI while reports are being uploaded. They are queued in
+                    an internal
+                    queue until being uploaded in orderly fashion.
+                </para>
+            </remarks>
+        </member>
+        <member name="P:OneTrueError.Client.Config.OneTrueConfiguration.ThrowExceptions">
+            <summary>
+                The library may throw exceptions if the server cannot be contacted / accept the upload.
+            </summary>
+            <remarks>
+                <para>
+                    Default is <c>true</c>, turn of before going to production.
+                </para>
+                <para>
+                    You can use the <see cref="E:OneTrueError.Client.Uploaders.UploadDispatcher.UploadFailed" /> event to get aware of errors when this flag is set
+                    to
+                    <c>true</c>.
+                </para>
+            </remarks>
+        </member>
+        <member name="P:OneTrueError.Client.Config.OneTrueConfiguration.Uploaders">
+            <summary>
+                The objects used to upload reports to the OneTrueError service.
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.Config.OneTrueConfiguration.UserInteraction">
+            <summary>
+                Configure how the reporting UI will interact with the user.
+            </summary>
+        </member>
+        <member name="M:OneTrueError.Client.Config.OneTrueConfiguration.Dispose">
+            <summary>
+                Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+            <filterpriority>2</filterpriority>
+        </member>
+        <member name="M:OneTrueError.Client.Config.OneTrueConfiguration.Credentials(System.Uri,System.String,System.String)">
+            <summary>
+                Configure uploads
+            </summary>
+            <param name="oneTrueHost">Host. Host and absolute path to the onetrueerror directory</param>
+            <param name="appKey">Appkey from the web site</param>
+            <param name="sharedSecret">Shared secret from the web site</param>
+        </member>
+        <member name="M:OneTrueError.Client.Config.OneTrueConfiguration.Dispose(System.Boolean)">
+            <summary>
+                Dispose pattern.
+            </summary>
+            <param name="isDisposing">Invoked from the dispose method.</param>
+        </member>
+        <member name="T:OneTrueError.Client.Config.UserInteractionConfiguration">
+            <summary>
+                Adopts the user interface and the reporting flow.
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.Config.UserInteractionConfiguration.AskForEmailAddress">
+            <summary>
+                Ask the user if he/she want to receive progress updates from you.
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.Config.UserInteractionConfiguration.AskUserForDetails">
+            <summary>
+                Display a dialog for the user where he/she can enter information about what he/she did when the exception was
+                thrown.
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.Config.UserInteractionConfiguration.AskUserForPermission">
+            <summary>
+                Ask the user if we may upload the error report.
+            </summary>
+        </member>
+        <member name="T:OneTrueError.Client.ContextCollections.NamespaceDoc">
+            <summary>
+                Contains context collections that have special meaning. They can for instance be used to drive features in the
+                backend.
+            </summary>
+        </member>
+        <member name="T:OneTrueError.Client.ContextCollections.OneTrueTags">
+            <summary>
+                Represents a set of tags that should be visible in the UI when the report is received.
+            </summary>
+        </member>
+        <member name="M:OneTrueError.Client.ContextCollections.OneTrueTags.#ctor(System.String[])">
+            <summary>
+                Creates a new instance of <see cref="T:OneTrueError.Client.ContextCollections.OneTrueTags" />.
+            </summary>
+            <param name="tags"></param>
+        </member>
+        <member name="T:OneTrueError.Client.ContextCollections.UserCredentials">
+            <summary>
+                Carries the user credentials to the server.
+            </summary>
+            <remarks>
+                <para>
+                    Creates a context collection with the name <c>UserCredentials</c> with the properties <c>UserName</c> and if
+                    available <c>DomainName</c>.
+                </para>
+            </remarks>
+        </member>
+        <member name="M:OneTrueError.Client.ContextCollections.UserCredentials.#ctor(System.Security.Principal.IIdentity)">
+            <summary>
+                Creates a new instance of <see cref="T:OneTrueError.Client.ContextCollections.UserCredentials" />.
+            </summary>
+            <param name="identity">
+                Identity, typically from <c>Thread.CurrentPrincipal.Identity</c> or <c>Request.User.Identity</c>
+                .
+            </param>
+        </member>
+        <member name="M:OneTrueError.Client.ContextCollections.UserCredentials.#ctor(System.String,System.String)">
+            <summary>
+                Creates a new instance of <see cref="T:OneTrueError.Client.ContextCollections.UserCredentials" />.
+            </summary>
+            <param name="userName">User name</param>
+            <param name="domainName">Domain name</param>
+        </member>
+        <member name="M:OneTrueError.Client.ContextCollections.UserCredentials.#ctor(System.String)">
+            <summary>
+                Creates a new instance of <see cref="T:OneTrueError.Client.ContextCollections.UserCredentials" />.
+            </summary>
+            <param name="userName">Username without domain (i.e. should not include "domainName\")</param>
+        </member>
+        <member name="T:OneTrueError.Client.ContextCollections.IContextCollection">
+            <summary>
+                Context collections provide information about the current application state when the exception as thrown.
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.ContextCollections.IContextCollection.CollectionName">
+            <summary>
+                Name of this collection
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.ContextCollections.IContextCollection.Properties">
+            <summary>
+                Properties that this collection supply.
+            </summary>
+        </member>
+        <member name="T:OneTrueError.Client.ContextCollections.UserSuppliedInformation">
+            <summary>
+                Information supplied by the user about this error.
+            </summary>
+        </member>
+        <member name="M:OneTrueError.Client.ContextCollections.UserSuppliedInformation.#ctor(System.String,System.String)">
+            <summary>
+                Initializes a new instance of the <see cref="T:OneTrueError.Client.ContextCollections.UserSuppliedInformation" /> class.
+            </summary>
+            <param name="description">
+                Description entered by the user. i.e. information about what the user did when the exception
+                was thrown.
+            </param>
+            <param name="email">Email address (entered if the user want to get notified when the exception has been fixed).</param>
+        </member>
+        <member name="P:OneTrueError.Client.ContextCollections.UserSuppliedInformation.Description">
+            <summary>
+                Description entered by the user. i.e. information about what the user did when the exception was thrown
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.ContextCollections.UserSuppliedInformation.EmailAddress">
+            <summary>
+                Email address if the user wants to receive a notification when the error has been fixed.
+            </summary>
+        </member>
+        <member name="T:OneTrueError.Client.ContextProviders.AssemblyProvider">
+            <summary>
+                Collection information about all assemblies which has been loaded. Will be put into a collection named
+                <c>Assemblies</c>.
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.ContextProviders.AssemblyProvider.Name">
+            <summary>
+                Gets "Assemblies"
+            </summary>
+        </member>
+        <member name="M:OneTrueError.Client.ContextProviders.AssemblyProvider.Collect(OneTrueError.Client.Reporters.IErrorReporterContext)">
+            <summary>
+                Collect information
+            </summary>
+            <param name="context">Context information provided by the class which reported the error.</param>
+            <returns>
+                Collection. Items with multiple values are joined using <c>";;"</c>
+            </returns>
+        </member>
+        <member name="T:OneTrueError.Client.ContextProviders.CurrentUserProvider">
+            <summary>
+                Adds the logged in user (using <c>Thread.CurrentPrincipal</c>).
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.ContextProviders.CurrentUserProvider.Name">
+            <summary>
+                Returns <c>"CurrentUser"</c>
+            </summary>
+        </member>
+        <member name="M:OneTrueError.Client.ContextProviders.CurrentUserProvider.Collect(OneTrueError.Client.Reporters.IErrorReporterContext)">
+            <summary>
+                Collects the identity name.
+            </summary>
+            <param name="context">Context collection</param>
+            <returns>Generated collection</returns>
+        </member>
+        <member name="T:OneTrueError.Client.ContextProviders.DefaultProviderAttribute">
+            <summary>
+                Use to indicate which providers are added into the collection process per default
+            </summary>
+        </member>
+        <member name="T:OneTrueError.Client.ContextProviders.ExceptionPropertiesProvider">
+            <summary>
+                Goes through the exception and maps all custom properties. Will be added into a collection called
+                <c>ExceptionProperties</c>.
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.ContextProviders.ExceptionPropertiesProvider.Name">
+            <summary>
+                Returns "ExceptionProperties"
+            </summary>
+        </member>
+        <member name="M:OneTrueError.Client.ContextProviders.ExceptionPropertiesProvider.Collect(OneTrueError.Client.Reporters.IErrorReporterContext)">
+            <summary>
+                Collect information
+            </summary>
+            <param name="context">Context information provided by the class which reported the error.</param>
+            <returns>
+                Collection. Items with multiple values are joined using <c>";;"</c>
+            </returns>
+        </member>
+        <member name="T:OneTrueError.Client.ContextProviders.AppInfoProvider">
+            <summary>
+                Collects information about the currently running application.
+            </summary>
+            <remarks>
+                <para>
+                    The collection is named <c>ApplicationInfo</c> and the collected information is:
+                </para>
+                <list type="table">
+                    <listheader>
+                        <term>Property name</term>
+                        <description>Description</description>
+                    </listheader>
+                    <item>
+                        <term>ThreadCount</term>
+                        <description>Number of OS threads.</description>
+                    </item>
+                    <item>
+                        <term>HandleCount</term>
+                        <description>Amount of OS handles that your application have opened.</description>
+                    </item>
+                    <item>
+                        <term>StartTime</term>
+                        <description>When the process was started.</description>
+                    </item>
+                    <item>
+                        <term>TotalProcessorTime</term>
+                        <description>
+                            Total amount used by your process (including OS time like reading from files or sending stuff
+                            over a socket).
+                        </description>
+                    </item>
+                    <item>
+                        <term>UserProcessorTime</term>
+                        <description>Amount of time used to execute your code.</description>
+                    </item>
+                    <item>
+                        <term>CurrentDirectory</term>
+                        <description>Current directory.</description>
+                    </item>
+                    <item>
+                        <term>MainModule</term>
+                        <description>
+                            Executable used to start the process, including the module name, file name, and module memory
+                            details.
+                        </description>
+                    </item>
+                    <item>
+                        <term>ProcessName</term>
+                        <description>Executable file name, without path and file extension.</description>
+                    </item>
+                    <item>
+                        <term>WorkingSet</term>
+                        <description>number of bytes of physical memory mapped to the process context.</description>
+                    </item>
+                    <item>
+                        <term>VirtualMemorySize</term>
+                        <description>Current size of virtual memory used by the process.</description>
+                    </item>
+                    <item>
+                        <term>PrivateMemorySize</term>
+                        <description>
+                            Current size of memory used by the process that cannot be shared with other processes (i.e.
+                            dedicated memory).
+                        </description>
+                    </item>
+                    <item>
+                        <term>BasePriority</term>
+                        <description>Starting priority for threads created within the associated process.</description>
+                    </item>
+                </list>
+            </remarks>
+        </member>
+        <member name="F:OneTrueError.Client.ContextProviders.AppInfoProvider.NameConstant">
+            <summary>
+                Name of the context collection
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.ContextProviders.AppInfoProvider.Name">
+            <summary>
+                Gets "ApplicationInfo"
+            </summary>
+        </member>
+        <member name="M:OneTrueError.Client.ContextProviders.AppInfoProvider.Collect(OneTrueError.Client.Reporters.IErrorReporterContext)">
+            <summary>
+                Collect information
+            </summary>
+            <param name="context">Context information provided by the class which reported the error.</param>
+            <returns>
+                Collection. Items with multiple values are joined using <c>";;"</c>
+            </returns>
+        </member>
+        <member name="T:OneTrueError.Client.ContextProviders.FileVersionProvider">
+            <summary>
+                File versions for all loaded assemblies (can be different than the assembly version).
+            </summary>
+            <remarks>
+                <para>Collection name is "FileVersions"</para>
+            </remarks>
+        </member>
+        <member name="F:OneTrueError.Client.ContextProviders.FileVersionProvider.NAME">
+            <summary>
+                "FileVersions"
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.ContextProviders.FileVersionProvider.Name">
+            <summary>
+                Name of the collection that this provider adds.
+            </summary>
+        </member>
+        <member name="M:OneTrueError.Client.ContextProviders.FileVersionProvider.Collect(OneTrueError.Client.Reporters.IErrorReporterContext)">
+            <summary>
+                Collect information
+            </summary>
+            <param name="context">Context information provided by the class which reported the error.</param>
+            <returns>
+                Collection. Items with multiple values are joined using <c>";;"</c>
+            </returns>
+        </member>
+        <member name="T:OneTrueError.Client.ContextProviders.Helpers.ManagementCollector">
+            <summary>
+                Collector used to fetch information from the windows management API
+            </summary>
+        </member>
+        <member name="M:OneTrueError.Client.ContextProviders.Helpers.ManagementCollector.#ctor(System.Collections.Specialized.NameValueCollection)">
+            <summary>
+                Initializes a new instance of the <see cref="T:OneTrueError.Client.ContextProviders.Helpers.ManagementCollector" /> class.
+            </summary>
+            <param name="collection">Collection to fill with context information.</param>
+            <exception cref="T:System.ArgumentNullException">collection</exception>
+        </member>
+        <member name="P:OneTrueError.Client.ContextProviders.Helpers.ManagementCollector.Filter">
+            <summary>
+                Filter out the specified names (if any).
+            </summary>
+        </member>
+        <member name="M:OneTrueError.Client.ContextProviders.Helpers.ManagementCollector.Collect(System.String)">
+            <summary>
+                Collects the specified name.
+            </summary>
+            <param name="name">Management object table.</param>
+        </member>
+        <member name="T:OneTrueError.Client.ContextProviders.NamespaceDoc">
+            <summary>
+                Context providers are used to collect additional information that can aid you in solving the error.
+            </summary>
+            <remarks>
+                <para>
+                    Used providers are mananaged through <see cref="T:OneTrueError.Client.ContextProviders.ContextProvidersRegistrar" />.
+                </para>
+            </remarks>
+        </member>
+        <member name="T:OneTrueError.Client.ContextProviders.ThreadContextInfo">
+            <summary>
+                Collects information from <c>Thread.CurrentThread</c> to a context called "Thread".
+            </summary>
+        </member>
+        <member name="F:OneTrueError.Client.ContextProviders.ThreadContextInfo.NAME">
+            <summary>
+                "Thread"
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.ContextProviders.ThreadContextInfo.Name">
+            <summary>
+                "Thread"
+            </summary>
+        </member>
+        <member name="M:OneTrueError.Client.ContextProviders.ThreadContextInfo.Collect(OneTrueError.Client.Reporters.IErrorReporterContext)">
+            <summary>
+                Collects information from <c>Thread.CurrentThread</c> to a context called "Thread".
+            </summary>
+            <param name="context">Contains information about the currently processed exception and where it came from.</param>
+            <returns>generated context info</returns>
+        </member>
+        <member name="T:OneTrueError.Client.ContextProviders.ContextProvidersRegistrar">
+            <summary>
+                Registrar used to configure which kind of context information to provide for each unhandled exception
+            </summary>
+            <remarks>
+                The built in providers can be found in the <see cref="N:OneTrueError.Client.ContextProviders" /> namespace.
+            </remarks>
+        </member>
+        <member name="M:OneTrueError.Client.ContextProviders.ContextProvidersRegistrar.#ctor">
+            <summary>
+                Initializes a new instance of the <see cref="T:OneTrueError.Client.ContextProviders.ContextProvidersRegistrar" /> class.
+            </summary>
+        </member>
+        <member name="M:OneTrueError.Client.ContextProviders.ContextProvidersRegistrar.Add(OneTrueError.Client.ContextProviders.IContextInfoProvider)">
+            <summary>
+                Add a new provider
+            </summary>
+            <param name="provider">Provider to add</param>
+            <exception cref="T:System.ArgumentNullException">provider</exception>
+        </member>
+        <member name="M:OneTrueError.Client.ContextProviders.ContextProvidersRegistrar.Clear">
+            <summary>
+                Remove all registered providers.
+            </summary>
+        </member>
+        <member name="M:OneTrueError.Client.ContextProviders.ContextProvidersRegistrar.Collect(OneTrueError.Client.Reporters.IErrorReporterContext)">
+            <summary>
+                Collect context information from all context providers.
+            </summary>
+            <param name="context">
+                CreateReport context (specialized for the different report adapters, for instance the ASP.NET
+                adapter contains the current <c>HttpContext</c>)
+            </param>
+            <returns>
+                Collected information
+            </returns>
+            <exception cref="T:System.ArgumentNullException">context</exception>
+        </member>
+        <member name="M:OneTrueError.Client.ContextProviders.ContextProvidersRegistrar.GetAddedProviderNames">
+            <summary>
+                Returns the name of all providers which have been added.
+            </summary>
+            <returns>String array (or an empty array)</returns>
+        </member>
+        <member name="M:OneTrueError.Client.ContextProviders.ContextProvidersRegistrar.Remove(System.String)">
+            <summary>
+                Remove the provider with the specified name
+            </summary>
+            <param name="name">The name (can be found using <see cref="M:OneTrueError.Client.ContextProviders.ContextProvidersRegistrar.GetAddedProviderNames" />).</param>
+        </member>
+        <member name="T:OneTrueError.Client.ContextProviders.DiskDriveProvider">
+            <summary>
+                Collects information about all disks in the computer. Will be added into a collection called <c>DiskDrives</c>.
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.ContextProviders.DiskDriveProvider.Name">
+            <summary>
+                Gets "DiskDrives"
+            </summary>
+        </member>
+        <member name="M:OneTrueError.Client.ContextProviders.DiskDriveProvider.Collect(OneTrueError.Client.Reporters.IErrorReporterContext)">
+            <summary>
+                Collect information
+            </summary>
+            <param name="context">Context information provided by the class which reported the error.</param>
+            <returns>
+                Collection
+            </returns>
+        </member>
+        <member name="T:OneTrueError.Client.ContextProviders.StartupCommandsProvider">
+            <summary>
+                Loads information about all applications which start during system startup. Will be added to a collection called
+                <c>StartupCommands</c>.
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.ContextProviders.StartupCommandsProvider.Name">
+            <summary>
+                Gets "StartupCommands"
+            </summary>
+        </member>
+        <member name="M:OneTrueError.Client.ContextProviders.StartupCommandsProvider.Collect(OneTrueError.Client.Reporters.IErrorReporterContext)">
+            <summary>
+                Collect information
+            </summary>
+            <param name="context">Context information provided by the class which reported the error.</param>
+            <returns>
+                Collection
+            </returns>
+        </member>
+        <member name="T:OneTrueError.Client.ContextProviders.SystemDevicesProvider">
+            <summary>
+                Loads information about all system devices. Will be added to a collection called <c>SystemDevices</c>.
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.ContextProviders.SystemDevicesProvider.Name">
+            <summary>
+                Gets "SystemDevices"
+            </summary>
+        </member>
+        <member name="M:OneTrueError.Client.ContextProviders.SystemDevicesProvider.Collect(OneTrueError.Client.Reporters.IErrorReporterContext)">
+            <summary>
+                Collect information
+            </summary>
+            <param name="context">Context information provided by the class which reported the error.</param>
+            <returns>
+                Collection
+            </returns>
+        </member>
+        <member name="T:OneTrueError.Client.ContextProviders.SystemInfoProvider">
+            <summary>
+                Collects information about the computer (such as motherboard information). Will be added to a collection called
+                <c>SystemInfo</c>.
+            </summary>
+            <remarks>
+                <para>
+                    Some fields are filtered out per default, look at the <see cref="F:OneTrueError.Client.ContextProviders.SystemInfoProvider.Filter" /> property.
+                </para>
+            </remarks>
+        </member>
+        <member name="F:OneTrueError.Client.ContextProviders.SystemInfoProvider.Filter">
+            <summary>
+                Fields which will be excluded.
+            </summary>
+            <remarks>
+                <para>
+                    Default is <c>"Caption", "DnsHostName", "Domain", "Name", "PrimaryOwnerName", "UserName", "Workgroup"</c>
+                </para>
+            </remarks>
+        </member>
+        <member name="P:OneTrueError.Client.ContextProviders.SystemInfoProvider.Name">
+            <summary>
+                Gets "SystemInfo"
+            </summary>
+        </member>
+        <member name="M:OneTrueError.Client.ContextProviders.SystemInfoProvider.Collect(OneTrueError.Client.Reporters.IErrorReporterContext)">
+            <summary>
+                Collect information
+            </summary>
+            <param name="context">Contains information about the currently processed exception and where it came from.</param>
+            <returns>
+                Collection
+            </returns>
+        </member>
+        <member name="T:OneTrueError.Client.ContextProviders.IContextInfoProvider">
+            <summary>
+                Collects information from a specific part of the system
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.ContextProviders.IContextInfoProvider.Name">
+            <summary>
+                Name of the collection that this provider adds.
+            </summary>
+        </member>
+        <member name="M:OneTrueError.Client.ContextProviders.IContextInfoProvider.Collect(OneTrueError.Client.Reporters.IErrorReporterContext)">
+            <summary>
+                Collect information
+            </summary>
+            <param name="context">Context information provided by the class which reported the error.</param>
+            <returns>Collection. Items with multiple values are joined using <c>";;"</c></returns>
+        </member>
+        <member name="T:OneTrueError.Client.ContextProviders.OperatingSystemProvider">
+            <summary>
+                Collects information about the operating system like version and service pack info. Will be added to a collection
+                called <c>OperatingSystem</c>.
+            </summary>
+        </member>
+        <member name="F:OneTrueError.Client.ContextProviders.OperatingSystemProvider.FilteredFields">
+            <summary>
+                Fields that will not be included.
+            </summary>
+            <remarks>
+                <para>Default filter is <code> "CSName", "RegisteredUser", "SerialNumber"</code> </para>
+            </remarks>
+        </member>
+        <member name="P:OneTrueError.Client.ContextProviders.OperatingSystemProvider.Name">
+            <summary>
+                Gets "OperatingSystem"
+            </summary>
+        </member>
+        <member name="M:OneTrueError.Client.ContextProviders.OperatingSystemProvider.Collect(OneTrueError.Client.Reporters.IErrorReporterContext)">
+            <summary>
+                Collect information
+            </summary>
+            <param name="context">Context information provided by the class which reported the error.</param>
+            <returns>
+                Collection. Items with multiple values are joined using <c>";;"</c>
+            </returns>
+        </member>
+        <member name="T:OneTrueError.Client.ContextProviders.ProcessorProvider">
+            <summary>
+                Collects information about the CPU. Will be added to a collection called <c>Processor</c>.
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.ContextProviders.ProcessorProvider.Name">
+            <summary>
+                Gets "Processor"
+            </summary>
+        </member>
+        <member name="M:OneTrueError.Client.ContextProviders.ProcessorProvider.Collect(OneTrueError.Client.Reporters.IErrorReporterContext)">
+            <summary>
+                Collect information
+            </summary>
+            <param name="context">Context information provided by the class which reported the error.</param>
+            <returns>
+                Collection
+            </returns>
+        </member>
+        <member name="T:OneTrueError.Client.Contracts.ContextCollectionDTO">
+            <summary>
+                DTO for a context collection
+            </summary>
+        </member>
+        <member name="M:OneTrueError.Client.Contracts.ContextCollectionDTO.#ctor(System.String)">
+            <summary>
+                Initializes a new instance of the <see cref="T:OneTrueError.Client.Contracts.ContextCollectionDTO" /> class.
+            </summary>
+            <param name="name">Collection name (will be shown in the web site).</param>
+            <exception cref="T:System.ArgumentNullException">name</exception>
+        </member>
+        <member name="M:OneTrueError.Client.Contracts.ContextCollectionDTO.#ctor(System.String,System.Collections.Specialized.NameValueCollection)">
+            <summary>
+                Initializes a new instance of the <see cref="T:OneTrueError.Client.Contracts.ContextCollectionDTO" /> class.
+            </summary>
+            <param name="name">Collection name (will be shown in the web site).</param>
+            <param name="items">All Properties in this collection.</param>
+            <exception cref="T:System.ArgumentNullException">
+                name
+                or
+                Properties
+            </exception>
+        </member>
+        <member name="M:OneTrueError.Client.Contracts.ContextCollectionDTO.#ctor(System.String,System.Collections.Generic.IDictionary{System.String,System.String})">
+            <summary>
+                Initializes a new instance of the <see cref="T:OneTrueError.Client.Contracts.ContextCollectionDTO" /> class.
+            </summary>
+            <param name="name">Collection name (will be shown in the web site).</param>
+            <param name="properties">All Properties in this collection.</param>
+            <exception cref="T:System.ArgumentNullException">
+                name
+                or
+                Properties
+            </exception>
+        </member>
+        <member name="M:OneTrueError.Client.Contracts.ContextCollectionDTO.#ctor(System.String,System.Collections.Generic.Dictionary{System.String,System.String})">
+            <summary>
+                Initializes a new instance of the <see cref="T:OneTrueError.Client.Contracts.ContextCollectionDTO" /> class.
+            </summary>
+            <param name="name">Collection name (will be shown in the web site).</param>
+            <param name="properties">All Properties in this collection.</param>
+            <exception cref="T:System.ArgumentNullException">
+                name
+                or
+                Properties
+            </exception>
+        </member>
+        <member name="P:OneTrueError.Client.Contracts.ContextCollectionDTO.Properties">
+            <summary>
+                All Properties in the collection
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.Contracts.ContextCollectionDTO.Name">
+            <summary>
+                Gets name of this collection (shown for the user so that he/she can identify this collection)
+            </summary>
+        </member>
+        <member name="M:OneTrueError.Client.Contracts.ContextCollectionDTO.ToString">
+            <summary>
+                Returns a <see cref="T:System.String" /> that represents this instance.
+            </summary>
+            <returns>
+                A <see cref="T:System.String" /> that represents this instance.
+            </returns>
+        </member>
+        <member name="T:OneTrueError.Client.Contracts.ErrorReportDTO">
+            <summary>
+                DTO used to transfer the report from the applications to the server.
+            </summary>
+        </member>
+        <member name="M:OneTrueError.Client.Contracts.ErrorReportDTO.#ctor(System.String,OneTrueError.Client.Contracts.ExceptionDTO,OneTrueError.Client.Contracts.ContextCollectionDTO[])">
+            <summary>
+                Initializes a new instance of the <see cref="T:OneTrueError.Client.Contracts.ErrorReportDTO" /> class.
+            </summary>
+            <param name="reportId">Unique identifier for this error report.</param>
+            <param name="exception">The exception.</param>
+            <param name="contextCollections">The context collections.</param>
+        </member>
+        <member name="M:OneTrueError.Client.Contracts.ErrorReportDTO.#ctor">
+            <summary>
+                Initializes a new instance of the <see cref="T:OneTrueError.Client.Contracts.ErrorReportDTO" /> class.
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.Contracts.ErrorReportDTO.ContextCollections">
+            <summary>
+                A collection of context information such as HTTP request information or computer hardware info.
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.Contracts.ErrorReportDTO.CreatedAtUtc">
+            <summary>
+                To get exact date
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.Contracts.ErrorReportDTO.Exception">
+            <summary>
+                Exception which was caught.
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.Contracts.ErrorReportDTO.IncidentId">
+            <summary>
+                For backwards compatibility
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.Contracts.ErrorReportDTO.ReportId">
+            <summary>
+                Gets report id (unique identifier used in communication with the customer to identify this error)
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.Contracts.ErrorReportDTO.ReportVersion">
+            <summary>
+                Version of the report API
+            </summary>
+            <example>
+                1.0
+            </example>
+        </member>
+        <member name="M:OneTrueError.Client.Contracts.ErrorReportDTO.Add(OneTrueError.Client.Contracts.ContextCollectionDTO)">
+            <summary>
+                Add an collection to the model
+            </summary>
+            <param name="collection">Collection of contextual information which can be used to aid in solving the error.</param>
+            <exception cref="T:System.ArgumentNullException">collection</exception>
+        </member>
+        <member name="M:OneTrueError.Client.Contracts.ErrorReportDTO.ToString">
+            <summary>
+                Returns a <see cref="T:System.String" /> that represents this instance.
+            </summary>
+            <returns>
+                A <see cref="T:System.String" /> that represents this instance.
+            </returns>
+        </member>
+        <member name="T:OneTrueError.Client.Contracts.ExceptionDTO">
+            <summary>
+                Model used to wrap all information from an exception.
+            </summary>
+        </member>
+        <member name="M:OneTrueError.Client.Contracts.ExceptionDTO.#ctor(System.Exception)">
+            <summary>
+                Initializes a new instance of the <see cref="T:OneTrueError.Client.Contracts.ExceptionDTO" /> class.
+            </summary>
+            <param name="exception">The exception.</param>
+            <exception cref="T:System.ArgumentNullException">exception</exception>
+        </member>
+        <member name="M:OneTrueError.Client.Contracts.ExceptionDTO.#ctor">
+            <summary>
+                Initializes a new instance of the <see cref="T:OneTrueError.Client.Contracts.ExceptionDTO" /> class.
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.Contracts.ExceptionDTO.AssemblyName">
+            <summary>
+                Assembly name (version included)
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.Contracts.ExceptionDTO.BaseClasses">
+            <summary>
+                Exception base classes. Most specific first: <c>ArgumentOutOfRangeException</c>, <c>ArgumentException</c>,
+                <c>Exception</c>.
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.Contracts.ExceptionDTO.Everything">
+            <summary>
+                Everything (<c>exception.ToString()</c>)
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.Contracts.ExceptionDTO.FullName">
+            <summary>
+                Full type name (namespace + class name)
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.Contracts.ExceptionDTO.InnerException">
+            <summary>
+                Inner exception (if any; otherwise <c>null</c>).
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.Contracts.ExceptionDTO.Message">
+            <summary>
+                Exception message
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.Contracts.ExceptionDTO.Name">
+            <summary>
+                Type name
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.Contracts.ExceptionDTO.Namespace">
+            <summary>
+                Namespace that the exception is in
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.Contracts.ExceptionDTO.Properties">
+            <summary>
+                All properties (public and private)
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.Contracts.ExceptionDTO.StackTrace">
+            <summary>
+                Stack trace, line numbers included if your app also distributes the PDB files.
+            </summary>
+        </member>
+        <member name="M:OneTrueError.Client.Contracts.ExceptionDTO.Copy(System.Exception,OneTrueError.Client.Contracts.ExceptionDTO)">
+            <summary>
+                Copy the .NET exception information into our DTO.
+            </summary>
+            <param name="source">Exception to copy from</param>
+            <param name="destination">Model to put the information in.</param>
+        </member>
+        <member name="M:OneTrueError.Client.Contracts.ExceptionDTO.GetProperties(System.Exception)">
+            <summary>
+                Get all properties from an exception (public and non public).
+            </summary>
+            <param name="exception">Exception to scan.</param>
+            <returns>Properties</returns>
+        </member>
+        <member name="T:OneTrueError.Client.Contracts.FeedbackDTO">
+            <summary>
+                To be able to write feedback after the actual error have been sent.
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.Contracts.FeedbackDTO.Description">
+            <summary>
+                Description written by the user about what he/she did when the error occurred.
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.Contracts.FeedbackDTO.EmailAddress">
+            <summary>
+                Email address to user (if he/she would like to get status updates)
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.Contracts.FeedbackDTO.ReportId">
+            <summary>
+                Id returned from <see cref="M:OneTrueError.Client.Processor.ReportIdGenerator.Generate(System.Exception)" /> (which is used when generating the error report).
+            </summary>
+        </member>
+        <member name="T:OneTrueError.Client.Contracts.NamespaceDoc">
+            <summary>
+                The DTO's used to submit information to OneTrueError.
+            </summary>
+            <remarks>
+                <para>
+                    Everything is serialized to JSON and then DTO is then compressed using ZIP before being uploaded to
+                    OneTrueError. The body
+                    is signed using HMAC and the signature is provided as <c>sig</c> in the query string.
+                </para>
+            </remarks>
+        </member>
+        <member name="T:OneTrueError.Client.Converters.NamespaceDoc">
+            <summary>
+                Serializers and converters.
+            </summary>
+        </member>
+        <member name="T:OneTrueError.Client.Converters.ObjectToContextCollectionConverter">
+            <summary>
+                Converts an object into a context collection.
+            </summary>
+            <remarks>
+                <para>
+                    The following conversions are supported:
+                </para>
+                <list type="table">
+                    <listheader>
+                        <term>type</term>
+                        <description>description</description>
+                    </listheader>
+                    <item>
+                        <term>anonymous object</term>
+                        <description>Collection will be named <c>CustomData</c>. All properties will be included</description>
+                    </item>
+                    <item>
+                        <term>class</term>
+                        <description>Collection will be named as the class. All properties will be included</description>
+                    </item>
+                    <item>
+                        <term>
+                            <see cref="T:OneTrueError.Client.Contracts.ContextCollectionDTO" />
+                        </term>
+                        <description>Collection is included directly</description>
+                    </item>
+                    <item>
+                        <term>
+                            <c>ContextCollectionDTO[]</c>
+                        </term>
+                        <description>All collections will be added as different ones (and not nested)</description>
+                    </item>
+                </list>
+            </remarks>
+        </member>
+        <member name="M:OneTrueError.Client.Converters.ObjectToContextCollectionConverter.#ctor">
+            <summary>
+                Creates a new instance of <see cref="T:OneTrueError.Client.Converters.ObjectToContextCollectionConverter" />.
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.Converters.ObjectToContextCollectionConverter.MaxPropertyCount">
+            <summary>
+                Maximum number of properties that can be added during the collection process.
+            </summary>
+            <value>
+                Default is 10,000
+            </value>
+        </member>
+        <member name="M:OneTrueError.Client.Converters.ObjectToContextCollectionConverter.Convert(System.String,System.Object)">
+            <summary>
+                Turn an object into a string which can be used for debugging.
+            </summary>
+            <param name="collectionName">
+                Name of the collection that is being created. This name is displayed under "Similarities"
+                and "Context info" in our UI.
+            </param>
+            <param name="instance">Object to get a string representation for</param>
+            <returns>"null" if the object is null, otherwise an string as given per object sample</returns>
+            <remarks>
+                Look at the class doc for an example.
+            </remarks>
+        </member>
+        <member name="M:OneTrueError.Client.Converters.ObjectToContextCollectionConverter.Convert(System.Object)">
+            <summary>
+                Turn an object into a string which can be used for debugging.
+            </summary>
+            <param name="instance">Object to get a string representation for</param>
+            <returns>"null" if the object is null, otherwise an string as given per object sample</returns>
+            <remarks>
+                <para>
+                    Collection name will be <c>ContextData</c> unless the object is a real type which is not a collection (in that
+                    case the type name is used).
+                </para>
+                <para>Look at the class doc for an example.</para>
+            </remarks>
+        </member>
+        <member name="M:OneTrueError.Client.Converters.ObjectToContextCollectionConverter.Ignore(System.String[])">
+            <summary>
+                Properties that should be ignored when the context collection is being built.
+            </summary>
+            <param name="properties">Case sensitive names</param>
+        </member>
+        <member name="M:OneTrueError.Client.Converters.ObjectToContextCollectionConverter.IsSimpleType(System.Type)">
+            <summary>
+                Checks if the specified type could be traversed or just added as a value.
+            </summary>
+            <param name="type">Type to check</param>
+            <returns><c>true</c> if we should add this type as a value; <c>false</c> if we should do reflection on it.</returns>
+        </member>
+        <member name="M:OneTrueError.Client.Converters.ObjectToContextCollectionConverter.ReflectObject(System.Object,System.String,OneTrueError.Client.Contracts.ContextCollectionDTO,System.Collections.Generic.List{System.Object})">
+            <summary>
+                Use reflection on a complex object to add it's values to our context collection
+            </summary>
+            <param name="instance">Current object to reflect</param>
+            <param name="prefix">Prefix, like "User.Address.Postal.ZipCode"</param>
+            <param name="contextCollection">Collection that values should be added to.</param>
+            <param name="path">To prevent circular references.</param>
+        </member>
+        <member name="M:OneTrueError.Client.Converters.ObjectToContextCollectionConverter.ReflectValue(System.String,System.Object,OneTrueError.Client.Contracts.ContextCollectionDTO,System.Collections.Generic.List{System.Object})">
+            <summary>
+                Use reflection on a complex object to add it's values to our context collection.
+            </summary>
+            <param name="propertyName">Property that this collection belongs to</param>
+            <param name="value"></param>
+            <param name="contextCollection">Collection that values should be added to.</param>
+            <param name="path">To prevent circular references.</param>
+        </member>
+        <member name="T:OneTrueError.Client.Converters.IncludeNonPublicMembersContractResolver">
+            <summary>
+                JSON.NET class which also includes all private fields.
+            </summary>
+        </member>
+        <member name="T:OneTrueError.Client.ObjectExtensions">
+            <summary>
+                Extension methods for objects.
+            </summary>
+        </member>
+        <member name="M:OneTrueError.Client.ObjectExtensions.IsAnonymousType(System.Type)">
+            <summary>
+                Determines whether the given type is an anonymous object.
+            </summary>
+            <param name="type">The type.</param>
+            <returns>
+                <c>true</c> if type is anonymous; otherwise, <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:OneTrueError.Client.ObjectExtensions.ToContextCollection(System.Object)">
+            <summary>
+                Converts simple objects into context collections
+            </summary>
+            <param name="instance">Object to convert</param>
+            <returns>Context information</returns>
+            <remarks>
+                Anonymous types get the collection name "CustomData" while any other class get the class name as collection name.
+            </remarks>
+        </member>
+        <member name="M:OneTrueError.Client.ObjectExtensions.ToContextCollection(System.Object,System.String)">
+            <summary>
+                Converts simple objects into context collections
+            </summary>
+            <param name="instance">Object to convert</param>
+            <param name="name">Name to assign to the context collection</param>
+            <returns>Context information</returns>
+            <remarks>
+                Anonymous types get the collection name "CustomData" while any other class get the class name as collection name.
+            </remarks>
+        </member>
+        <member name="T:OneTrueError.Client.OneTrue">
+            <summary>
+                Main mother of all true things.
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.OneTrue.Configuration">
+            <summary>
+                Access configuration options
+            </summary>
+        </member>
+        <member name="M:OneTrueError.Client.OneTrue.GenerateReport(System.Exception)">
+            <summary>
+                Will generate a report without uploading it.
+            </summary>
+            <param name="exception">Exception that you want to get reported</param>
+            <returns>Unique identifier for this report (generated using <see cref="T:OneTrueError.Client.Processor.ReportIdGenerator" />)</returns>
+            <exception cref="T:System.ArgumentNullException">exception</exception>
+            <remarks>
+                <para>
+                    A lot if context information is also included in the error report. You can configure the attached information
+                    by
+                    using <c>OneTrue.Configuration.ContextProviders.Add()</c>
+                </para>
+                <para>
+                    All library exceptions are directed to the <c>OneTrue.ReportingFailed</c> event.
+                    Subscribe on that event if you have trouble with reporting exceptions.
+                </para>
+            </remarks>
+            <example>
+                <code>
+            public ActionResult Activate(UserViewModel model)
+            {
+            	if (!ModelState.IsValid)
+            		return View(model);
+            		
+            	try
+            	{
+            		var user = _repos.GetUser(model.Id);
+            		user.Activate(model.ActivationCode);
+            		_repos.Save(user);
+            		return RedirectToAction("Welcome");
+            	}
+            	catch (Exception exception)
+            	{
+            		OneTrue.Report(exception);
+            	}
+            }
+            </code>
+            </example>
+            <seealso cref="M:OneTrueError.Client.OneTrue.UploadReport(OneTrueError.Client.Contracts.ErrorReportDTO)" />
+        </member>
+        <member name="M:OneTrueError.Client.OneTrue.GenerateReport(System.Exception,System.Object)">
+            <summary>
+                Will generate a report without uploading it.
+            </summary>
+            <param name="exception">Exception that you want to get reported</param>
+            <param name="contextData">
+                Context specific information which would make it easier to reproduce and correct the
+                exception. See <see cref="T:OneTrueError.Client.Converters.ObjectToContextCollectionConverter"/> to understand what kind of information you can attach.
+            </param>
+            <returns>Unique identifier for this report (generated using <see cref="T:OneTrueError.Client.Processor.ReportIdGenerator" />)</returns>
+            <exception cref="T:System.ArgumentNullException">exception</exception>
+            <remarks>
+                <para>
+                    A lot if context information is also included in the error report. You can configure the attached information
+                    by
+                    using <c>OneTrue.Configuration.ContextProviders.Add()</c>
+                </para>
+                <para>
+                    All library exceptions are directed to the <c>OneTrue.ReportingFailed</c> event.
+                    Subscribe on that event if you have trouble with reporting exceptions.
+                </para>
+            </remarks>
+            <example>
+                <code>
+            public ActionResult Activate(UserViewModel model)
+            {
+            	if (!ModelState.IsValid)
+            		return View(model);
+            		
+            	try
+            	{
+            		var user = _repos.GetUser(model.Id);
+            		user.Activate(model.ActivationCode);
+            		_repos.Save(user);
+            		return RedirectToAction("Welcome");
+            	}
+            	catch (Exception exception)
+            	{
+            		OneTrue.Report(exception);
+            	}
+            }
+            </code>
+            </example>
+            <seealso cref="M:OneTrueError.Client.OneTrue.UploadReport(OneTrueError.Client.Contracts.ErrorReportDTO)" />
+        </member>
+        <member name="M:OneTrueError.Client.OneTrue.GenerateReport(OneTrueError.Client.Reporters.IErrorReporterContext)">
+            <summary>
+                Generate an error report
+            </summary>
+            <param name="context">context</param>
+            <returns>generated report</returns>
+            <exception cref="T:System.ArgumentNullException"></exception>
+        </member>
+        <member name="M:OneTrueError.Client.OneTrue.LeaveFeedback(System.String,OneTrueError.Client.ContextCollections.UserSuppliedInformation)">
+            <summary>
+                A user have written information about what he/she did when the exception was thrown; or the user want to get
+                information about the bug fixing progress (i.e. want to know when the error is corrected).
+            </summary>
+            <param name="errorId">Id generated by this library. Returned when you invoke <see cref="M:OneTrueError.Client.OneTrue.Report(System.Exception)" />.</param>
+            <param name="feedback">Information from the user.</param>
+        </member>
+        <member name="M:OneTrueError.Client.OneTrue.Report(System.Exception)">
+            <summary>
+                Report an exception directly.
+            </summary>
+            <param name="exception">Exception that you want to get reported</param>
+            <returns>Unique identifier for this report (generated using <see cref="T:OneTrueError.Client.Processor.ReportIdGenerator" />)</returns>
+            <exception cref="T:System.ArgumentNullException">exception</exception>
+            <remarks>
+                <para>
+                    A lot if context information is also included in the error report. You can configure the attached information
+                    by
+                    using <c>OneTrue.Configuration.ContextProviders.Add()</c>
+                </para>
+                <para>
+                    All library exceptions are directed to the <c>OneTrue.ReportingFailed</c> event.
+                    Subscribe on that event if you have trouble with reporting exceptions.
+                </para>
+            </remarks>
+            <example>
+                <code>
+            public ActionResult Activate(UserViewModel model)
+            {
+            	if (!ModelState.IsValid)
+            		return View(model);
+            		
+            	try
+            	{
+            		var user = _repos.GetUser(model.Id);
+            		user.Activate(model.ActivationCode);
+            		_repos.Save(user);
+            		return RedirectToAction("Welcome");
+            	}
+            	catch (Exception exception)
+            	{
+            		OneTrue.Report(exception);
+            	}
+            }
+            </code>
+            </example>
+        </member>
+        <member name="M:OneTrueError.Client.OneTrue.Report(System.Exception,System.Object)">
+            <summary>
+                Report an exception directly.
+            </summary>
+            <param name="exception">Exception that you want to get reported</param>
+            <param name="contextData">
+                Context specific information which would make it easier to reproduce and correct the
+                exception. See <see cref="T:OneTrueError.Client.Converters.ObjectToContextCollectionConverter"/> to understand what kind of information you can attach.
+            </param>
+            <returns>Unique identifier for this report (generated using <see cref="T:OneTrueError.Client.Processor.ReportIdGenerator" />)</returns>
+            <exception cref="T:System.ArgumentNullException">exception</exception>
+            <remarks>
+                <para>
+                    Context information will be collected and included in the error report. You can configure the attached information
+                    by
+                    using <c>OneTrue.Configuration.ContextProviders</c>
+                </para>
+                <para>
+                    All library exceptions are directed to the <c>OneTrue.ReportingFailed</c> event.
+                    Subscribe on that event if you have trouble with reporting exceptions.
+                </para>
+            
+            </remarks>
+            <example>
+                <code>
+            public ActionResult Activate(UserViewModel model)
+            {
+            	if (!ModelState.IsValid)
+            		return View(model);
+            		
+            	try
+            	{
+            		var user = _repos.GetUser(model.Id);
+            		user.Activate(model.ActivationCode);
+            		_repos.Save(user);
+            		return RedirectToAction("Welcome");
+            	}
+            	catch (Exception exception)
+            	{
+            		OneTrue.Report(exception, model);
+            	}
+            }
+            </code>
+            </example>
+        </member>
+        <member name="M:OneTrueError.Client.OneTrue.UploadReport(OneTrueError.Client.Contracts.ErrorReportDTO)">
+            <summary>
+                Upload an error report.
+            </summary>
+            <param name="dto">Typically generated by <see cref="M:OneTrueError.Client.OneTrue.GenerateReport(System.Exception)" />.</param>
+        </member>
+        <member name="T:OneTrueError.Client.Processor.NamespaceDoc">
+            <summary>
+                Contains the processor which analyzes the exception and builds context information.
+            </summary>
+        </member>
+        <member name="T:OneTrueError.Client.Processor.ReportFilterDispatcher">
+            <summary>
+                Purpose of this class is to invoke all callbacks to see if any of them objects to uploading this report.
+            </summary>
+        </member>
+        <member name="M:OneTrueError.Client.Processor.ReportFilterDispatcher.Add(OneTrueError.Client.Processor.IReportFilter)">
+            <summary>
+                Add a filter to the collection
+            </summary>
+            <param name="filter">Filter</param>
+        </member>
+        <member name="M:OneTrueError.Client.Processor.ReportFilterDispatcher.CanUploadReport(OneTrueError.Client.Contracts.ErrorReportDTO)">
+            <summary>
+                Invoke callbacks
+            </summary>
+            <param name="dto">Report to be uploaded.</param>
+            <returns><c>false</c> if any of the callbacks return <c>false</c>; otherwise <c>true</c></returns>
+            <remarks>
+                <para>
+                    All callbacks will be invoked, even if one of them returns <c>false</c>.
+                </para>
+            </remarks>
+        </member>
+        <member name="T:OneTrueError.Client.Processor.ExceptionProcessor">
+            <summary>
+                Will proccess the exception to generate context info and then upload it to the server.
+            </summary>
+        </member>
+        <member name="M:OneTrueError.Client.Processor.ExceptionProcessor.#ctor(OneTrueError.Client.Config.OneTrueConfiguration)">
+            <summary>
+                Creates a new instance of <see cref="T:OneTrueError.Client.Processor.ExceptionProcessor" />.
+            </summary>
+            <param name="configuration">Current configuration.</param>
+        </member>
+        <member name="M:OneTrueError.Client.Processor.ExceptionProcessor.Build(System.Exception)">
+            <summary>
+                Build an report, but do not upload it
+            </summary>
+            <param name="exception">caught exception</param>
+            <remarks>
+                <para>
+                    Will collect context info and generate a report.
+                </para>
+            </remarks>
+        </member>
+        <member name="M:OneTrueError.Client.Processor.ExceptionProcessor.Build(System.Exception,System.Object)">
+            <summary>
+                Build an report, but do not upload it
+            </summary>
+            <param name="exception">caught exception</param>
+            <param name="contextData">context data</param>
+            <remarks>
+                <para>
+                    Will collect context info and generate a report.
+                </para>
+            </remarks>
+        </member>
+        <member name="M:OneTrueError.Client.Processor.ExceptionProcessor.Process(System.Exception)">
+            <summary>
+                Process exception.
+            </summary>
+            <param name="exception">caught exception</param>
+            <remarks>
+                <para>
+                    Will collect context info, generate a report, go through filters and finally upload it.
+                </para>
+            </remarks>
+        </member>
+        <member name="M:OneTrueError.Client.Processor.ExceptionProcessor.Process(OneTrueError.Client.Reporters.IErrorReporterContext)">
+            <summary>
+                Process exception.
+            </summary>
+            <param name="context">
+                Used to reports (like for ASP.NET) can attach information which can be used during the context
+                collection pipeline.
+            </param>
+            <remarks>
+                <para>
+                    Will collect context info, generate a report, go through filters and finally upload it.
+                </para>
+            </remarks>
+            <returns>
+                Report if filter allowed the generated report; otherwise <c>null</c>.
+            </returns>
+            <seealso cref="T:OneTrueError.Client.Processor.IReportFilter" />
+        </member>
+        <member name="M:OneTrueError.Client.Processor.ExceptionProcessor.Process(System.Exception,System.Object)">
+            <summary>
+                Process exception.
+            </summary>
+            <param name="exception">caught exception</param>
+            <param name="contextData">Context data</param>
+            <remarks>
+                <para>
+                    Will collect context info, generate a report, go through filters and finally upload it.
+                </para>
+            </remarks>
+        </member>
+        <member name="T:OneTrueError.Client.Processor.ShortGuid">
+            <summary>
+                Shortens GUIDs using Base64 and convert the result to a URL friendly string.
+            </summary>
+        </member>
+        <member name="M:OneTrueError.Client.Processor.ShortGuid.Decode(System.String)">
+            <summary>
+                Get a short GUID as a Guid object.
+            </summary>
+            <param name="shortGuid">The short GUID.</param>
+            <returns>Restored GUID</returns>
+            <exception cref="T:System.ArgumentNullException">shortGuid</exception>
+            <exception cref="T:System.FormatException">Input string was not in a correct format.</exception>
+        </member>
+        <member name="M:OneTrueError.Client.Processor.ShortGuid.Encode(System.Guid)">
+            <summary>
+                Creates a 22-character case-sensitive short GUID.
+            </summary>
+            <param name="guid">The GUID.</param>
+            <returns>Compacted representation of the GUID</returns>
+            <exception cref="T:System.ArgumentNullException">guid</exception>
+        </member>
+        <member name="T:OneTrueError.Client.Processor.IReportFilter">
+            <summary>
+                Invoked for every report that is about to be uploaded.
+            </summary>
+            <remarks>
+                Register the filter using <c>OneTrue.Configuration.FilterCollection.</c>
+            </remarks>
+        </member>
+        <member name="M:OneTrueError.Client.Processor.IReportFilter.Invoke(OneTrueError.Client.Processor.ReportFilterContext)">
+            <summary>
+                Filter method.
+            </summary>
+            <param name="context">Exception context information</param>
+            <remarks>
+                <para>
+                    Set <c>ReportFilterContext.CanSubmitReport</c> to <c>false</c> to abort upload.
+                </para>
+            </remarks>
+        </member>
+        <member name="T:OneTrueError.Client.Processor.ReportIdGenerator">
+            <summary>
+                Used to be able to choose reportId id strategy
+            </summary>
+            <remarks>
+                <para>
+                    The reportId id is the string which are used during communication between the end customers and the OneTrue
+                    error
+                    customers.
+                </para>
+                <para>
+                    The default implementation Base64 encodes a guid (the last "--" is removed from the Base64 string,"/" is
+                    replaced with "_" and "+" is replaced with "-".
+                </para>
+                <para>
+                    The ID must be globally unique (or at least within your own application scope).
+                </para>
+            </remarks>
+            <seealso cref="T:OneTrueError.Client.Processor.ShortGuid" />
+        </member>
+        <member name="M:OneTrueError.Client.Processor.ReportIdGenerator.Assign(System.Func{System.Exception,System.String})">
+            <summary>
+                Assign a custom ID generator.
+            </summary>
+            <param name="generator">The generator.</param>
+            <exception cref="T:System.ArgumentNullException">generator</exception>
+        </member>
+        <member name="M:OneTrueError.Client.Processor.ReportIdGenerator.Generate(System.Exception)">
+            <summary>
+                Generate a new ID
+            </summary>
+            <param name="exception">Exception to get an reportId for</param>
+            <returns>reportId</returns>
+            <exception cref="T:System.ArgumentNullException">exception</exception>
+        </member>
+        <member name="T:OneTrueError.Client.Processor.ReportFilterContext">
+            <summary>
+                Used when invoking all <see cref="T:OneTrueError.Client.Processor.IReportFilter" /> to determine if the current report may be sent to the
+                submitters.
+            </summary>
+            <seealso cref="N:OneTrueError.Client.Uploaders" />
+        </member>
+        <member name="M:OneTrueError.Client.Processor.ReportFilterContext.#ctor(OneTrueError.Client.Contracts.ErrorReportDTO)">
+            <summary>
+                Initializes a new instance of the <see cref="T:OneTrueError.Client.Processor.ReportFilterContext" /> class.
+            </summary>
+            <param name="report">The report.</param>
+            <exception cref="T:System.ArgumentNullException">report</exception>
+        </member>
+        <member name="P:OneTrueError.Client.Processor.ReportFilterContext.CanSubmitReport">
+            <summary>
+                True if we may submit the report
+            </summary>
+            <value>Default is true</value>
+        </member>
+        <member name="P:OneTrueError.Client.Processor.ReportFilterContext.Report">
+            <summary>
+                Created report
+            </summary>
+        </member>
+        <member name="T:OneTrueError.Client.Uploaders.InvalidApplicationKeyException">
+            <summary>
+                Thrown when the server did not find our application key
+            </summary>
+            <remarks>
+                <para>
+                    You can catch this exception using the <c>OneTrue.Configuration.Advanced.ReportingFailed</c> event.
+                </para>
+            </remarks>
+        </member>
+        <member name="M:OneTrueError.Client.Uploaders.InvalidApplicationKeyException.#ctor(System.String,System.Exception)">
+            <summary>
+                Initializes a new instance of the <see cref="T:OneTrueError.Client.Uploaders.InvalidApplicationKeyException" /> class.
+            </summary>
+            <param name="errMsg">The error MSG.</param>
+            <param name="inner">The inner.</param>
+        </member>
+        <member name="T:OneTrueError.Client.Uploaders.TempData">
+            <summary>
+                <para>
+                    Temp data is used to store reports in memory for at most 20 minutes.
+                </para>
+                <para>
+                    The purpose is
+                    to be able to keep data for instance in web applications where different http requests is
+                    required to collect information.
+                </para>
+            </summary>
+        </member>
+        <member name="M:OneTrueError.Client.Uploaders.TempData.#ctor">
+            <summary>
+                Creates a new instance of <see cref="T:OneTrueError.Client.Uploaders.TempData" />.
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.Uploaders.TempData.Item(System.String)">
+            <summary>
+                Access an item (items are automatically deleted when retrieved)
+            </summary>
+            <param name="id">Identifier</param>
+            <returns>Item or <c>null</c></returns>
+        </member>
+        <member name="M:OneTrueError.Client.Uploaders.TempData.Dispose">
+            <summary>
+                Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+            <filterpriority>2</filterpriority>
+        </member>
+        <member name="M:OneTrueError.Client.Uploaders.TempData.Dispose(System.Boolean)">
+            <summary>
+                Dispose pattern.
+            </summary>
+            <param name="isDisposing">Invoked from Dispose() method.</param>
+        </member>
+        <member name="T:OneTrueError.Client.Uploaders.UploadDispatcher">
+            <summary>
+                Invokes all uploaders for every report.
+            </summary>
+            <remarks>
+                <para>
+                    This class uses the <see cref="P:OneTrueError.Client.Config.OneTrueConfiguration.QueueReports" /> to determine if uploads should be done in
+                    the background (i.e. don't fail on errors, attempt again late).
+                </para>
+            </remarks>
+        </member>
+        <member name="M:OneTrueError.Client.Uploaders.UploadDispatcher.#ctor(OneTrueError.Client.Config.OneTrueConfiguration)">
+            <summary>
+                Creates a new instance of <see cref="T:OneTrueError.Client.Uploaders.UploadDispatcher" />.
+            </summary>
+            <param name="configuration">Used to check at runtime of queuing is enabled or not.</param>
+        </member>
+        <member name="P:OneTrueError.Client.Uploaders.UploadDispatcher.MaxQueueSize">
+            <summary>
+                Max number of items that may wait in queue to get uploaded.
+            </summary>
+        </member>
+        <member name="M:OneTrueError.Client.Uploaders.UploadDispatcher.Dispose">
+            <summary>
+                Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+            <filterpriority>2</filterpriority>
+        </member>
+        <member name="M:OneTrueError.Client.Uploaders.UploadDispatcher.Register(OneTrueError.Client.Uploaders.IReportUploader)">
+            <summary>
+                Register an uploader.
+            </summary>
+            <param name="uploader">uploader</param>
+        </member>
+        <member name="M:OneTrueError.Client.Uploaders.UploadDispatcher.Upload(OneTrueError.Client.Contracts.ErrorReportDTO)">
+            <summary>
+                Invoke callbacks
+            </summary>
+            <param name="dto">Report to be uploaded.</param>
+            <returns><c>false</c> if any of the callbacks return <c>false</c>; otherwise <c>true</c></returns>
+            <remarks>
+                <para>
+                    All callbacks will be invoked, even if one of them returns <c>false</c>.
+                </para>
+            </remarks>
+        </member>
+        <member name="M:OneTrueError.Client.Uploaders.UploadDispatcher.Upload(OneTrueError.Client.Contracts.FeedbackDTO)">
+            <summary>
+                Upload feedback.
+            </summary>
+            <param name="dto">Feedback provided  by the user.</param>
+        </member>
+        <member name="M:OneTrueError.Client.Uploaders.UploadDispatcher.Dispose(System.Boolean)">
+            <summary>
+                Dispose pattern
+            </summary>
+            <param name="isDisposing">Invoked from the dispose method.</param>
+        </member>
+        <member name="E:OneTrueError.Client.Uploaders.UploadDispatcher.UploadFailed">
+            <summary>
+                Have given up the attempt to deliver a report.
+            </summary>
+            <remarks>
+                The reason is implementation specific but is typically configured using a set of properties.
+            </remarks>
+        </member>
+        <member name="T:OneTrueError.Client.Uploaders.UploadQueue`1">
+            <summary>
+                Purpose of this class is to take care of DTO queing to be able to upload reports in a structured manner.
+            </summary>
+            <typeparam name="T">Type of entity to queue</typeparam>
+        </member>
+        <member name="M:OneTrueError.Client.Uploaders.UploadQueue`1.#ctor(System.Action{`0})">
+            <summary>
+                Create a new instance of <see cref="T:OneTrueError.Client.Uploaders.UploadQueue`1" />.
+            </summary>
+            <param name="uploadAction">
+                Action to invoke for the DTO that should be uploaded. Thrown exceptions are used to indicate
+                that a retry should be made.
+            </param>
+        </member>
+        <member name="P:OneTrueError.Client.Uploaders.UploadQueue`1.MaxAttempts">
+            <summary>
+                Max number of upload attempts per report.
+            </summary>
+            <value>Default is 3.</value>
+        </member>
+        <member name="P:OneTrueError.Client.Uploaders.UploadQueue`1.MaxQueueSize">
+            <summary>
+                Max number of items that may wait in queue to get uploaded.
+            </summary>
+            <value>
+                Default is 10.
+            </value>
+        </member>
+        <member name="P:OneTrueError.Client.Uploaders.UploadQueue`1.PreConditionAction">
+            <summary>
+                An action to run in the background thread to check whether an upload can be made.
+            </summary>
+            <remarks>
+                Typically used to check for connectivity.
+            </remarks>
+        </member>
+        <member name="P:OneTrueError.Client.Uploaders.UploadQueue`1.RetryInterval">
+            <summary>
+                Amount of time to wait between each attempt.
+            </summary>
+            <value>
+                Default is 5 seconds.
+            </value>
+        </member>
+        <member name="M:OneTrueError.Client.Uploaders.UploadQueue`1.Dispose">
+            <summary>
+                Dispose queue
+            </summary>
+        </member>
+        <member name="M:OneTrueError.Client.Uploaders.UploadQueue`1.Add(`0)">
+            <summary>
+                Add a new item to the queue. Will be uploaded directly if the queue is empty.
+            </summary>
+            <param name="item">item to enqueue</param>
+            <exception cref="T:System.ArgumentNullException">item</exception>
+        </member>
+        <member name="M:OneTrueError.Client.Uploaders.UploadQueue`1.AddIfNotEmpty(`0,System.Action)">
+            <summary>
+                Add report queue if the queue is empty; otherwise invoke the delegate.
+            </summary>
+            <param name="dto">DTO to add to the queue</param>
+            <param name="uploadTask">Task to invoke if queue is empty</param>
+            <returns><c>true</c> if item was added to the queue; otherwise <c>false</c></returns>
+        </member>
+        <member name="E:OneTrueError.Client.Uploaders.UploadQueue`1.UploadFailed">
+            <summary>
+                Failed to deliver DTO within the given parameters.
+            </summary>
+            <remarks>
+            </remarks>
+        </member>
+        <member name="M:OneTrueError.Client.Uploaders.UploadQueue`1.Dispose(System.Boolean)">
+            <summary>
+                Dispose pattern
+            </summary>
+            <param name="isFromDispose">invoked from Dispose() method.</param>
+        </member>
+        <member name="T:OneTrueError.Client.Uploaders.UploadReportFailedEventArgs">
+            <summary>
+                Event args for ReportingFailed
+            </summary>
+        </member>
+        <member name="M:OneTrueError.Client.Uploaders.UploadReportFailedEventArgs.#ctor(System.Exception,System.Object)">
+            <summary>
+                Initializes a new instance of the <see cref="T:OneTrueError.Client.Uploaders.UploadReportFailedEventArgs" /> class.
+            </summary>
+            <param name="exception">The exception.</param>
+            <param name="dto">DTO that couldn't be uploaded.</param>
+            <exception cref="T:System.ArgumentNullException">exception</exception>
+        </member>
+        <member name="P:OneTrueError.Client.Uploaders.UploadReportFailedEventArgs.Dto">
+            <summary>
+                DTO that could not be uploaded.
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.Uploaders.UploadReportFailedEventArgs.Exception">
+            <summary>
+                Exception generated by OTE (it can for instance be that you have configured the app key incorrectly).
+            </summary>
+        </member>
+        <member name="T:OneTrueError.Client.Uploaders.IReportUploader">
+            <summary>
+                Defines the contract for all classes that will send the error report to a specific destination.
+            </summary>
+            <seealso cref="T:OneTrueError.Client.Uploaders.UploadToOneTrueError" />
+            <remarks>
+                <para>
+                    This contract gives a best effort promsie. i.e. it only promises to deliver the DTOs as soon as possible, but
+                    reports
+                    might be trashed if retried a certain amount of times or during a certain period of time. The
+                    <c>UploadFailed</c>
+                    event MUST be invoked by implementations when DTOs are thrown away.
+                </para>
+            </remarks>
+        </member>
+        <member name="E:OneTrueError.Client.Uploaders.IReportUploader.UploadFailed">
+            <summary>
+                Have given up the attempt to deliver a report.
+            </summary>
+            <remarks>
+                The reason is implementation specific but is typically configured using a set of properties.
+            </remarks>
+        </member>
+        <member name="M:OneTrueError.Client.Uploaders.IReportUploader.UploadFeedback(OneTrueError.Client.Contracts.FeedbackDTO)">
+            <summary>
+                Send feedback for a previously submitted error report
+            </summary>
+            <param name="feedback">Feedback to send</param>
+        </member>
+        <member name="M:OneTrueError.Client.Uploaders.IReportUploader.UploadReport(OneTrueError.Client.Contracts.ErrorReportDTO)">
+            <summary>
+                Upload report
+            </summary>
+            <param name="report">Error report that should be uploaded to the service</param>
+        </member>
+        <member name="T:OneTrueError.Client.Uploaders.NamespaceDoc">
+            <summary>
+                Submitters are the classes which takes error reports and delivers them to a specific destination. The destination
+                itself
+                can be anything from an local log file to a web service.
+            </summary>
+            <remarks>
+                <para>
+                    The OneTrueError reporter is defined as <see cref="T:OneTrueError.Client.Uploaders.UploadToOneTrueError" />.
+                </para>
+                <para>
+                    This library will enqueue every error report for each submitter and also persist the queue. It that way the
+                    library can continue to upload error
+                    reports to every submitter even if the application crashes.
+                </para>
+            </remarks>
+        </member>
+        <member name="T:OneTrueError.Client.Uploaders.UploadToOneTrueError">
+            <summary>
+                Upload reports to our web site.
+            </summary>
+            <remarks>
+                <para>
+                    To use this reporter you have to create an account at http://onetrueerror.com and then register an application
+                    to get an application key and a shared secret.
+                </para>
+                <para>
+                    Finally use that information to configure this reporter:
+                </para>
+                <example>
+                    <code>
+            //"receiver" is the area name in our service. add any virtual directory before it.
+            var uri = new Uri("http://onetrueerror.yourdomain.com/");
+            OneTrue.Configuration.Uploaders.Add(new UploadToOneTrueError(uri, "yourAppKey",
+                                                                        "yourSharedSecret"));
+            OneTrue.Configuration.UserInteraction.AskUserForDetails = false;
+            </code>
+                </example>
+                <para>
+                    Reports will be queued internally if there are no internet connection available. The queue have the same
+                    constrains as in the global
+                    configuration.  Thus the olders reports will be dropped if the connection is down and the queue limit have been
+                    reached.
+                </para>
+                <para>
+                    Nothing in the queue is persisted. Thus if the application are stopped before all reports have been uploaded,
+                    they will
+                    be lost. This is only a problem if the OneTrueError service is slow or if the internet connection is down.
+                </para>
+                <para>
+                    This uploader will check the internet settings (that are configured in the windows control panel) to see if an
+                    internet proxy
+                    is required. If it is, the HttpClient will be configured to use it. So this library should work behind
+                    corporate firewalls.
+                </para>
+            </remarks>
+        </member>
+        <member name="M:OneTrueError.Client.Uploaders.UploadToOneTrueError.#ctor(System.Uri,System.String,System.String)">
+            <summary>
+                Initializes a new instance of the <see cref="T:OneTrueError.Client.Uploaders.UploadToOneTrueError" /> class.
+            </summary>
+            <param name="oneTrueHost">
+                Uri to the root of the OneTrueError web. Example.
+                <code>http://yourWebServer/OneTrueError/</code>
+            </param>
+            <param name="apiKey">The API key.</param>
+            <param name="sharedSecret">The shared secret.</param>
+            <exception cref="T:System.ArgumentNullException">apiKey</exception>
+        </member>
+        <member name="M:OneTrueError.Client.Uploaders.UploadToOneTrueError.#ctor(System.Uri,System.String,System.String,System.Func{System.Boolean})">
+            <summary>
+                Initializes a new instance of the <see cref="T:OneTrueError.Client.Uploaders.UploadToOneTrueError" /> class.
+            </summary>
+            <param name="oneTrueHost">
+                Uri to the root of the OneTrueError web. Example.
+                <code>http://yourWebServer/OneTrueError/</code>
+            </param>
+            <param name="apiKey">The API key.</param>
+            <param name="sharedSecret">The shared secret.</param>
+            <param name="queueReportsAccessor">Used to access the property that determines if the reports should be queued or not.</param>
+            <exception cref="T:System.ArgumentNullException">apiKey</exception>
+        </member>
+        <member name="P:OneTrueError.Client.Uploaders.UploadToOneTrueError.MaxAttempts">
+            <summary>
+                Max number of upload attempts per report
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.Uploaders.UploadToOneTrueError.MaxQueueSize">
+            <summary>
+                Max number of items that may wait in queue to get upload.
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.Uploaders.UploadToOneTrueError.RetryInterval">
+            <summary>
+                Amount of time to wait between each attempt
+            </summary>
+        </member>
+        <member name="M:OneTrueError.Client.Uploaders.UploadToOneTrueError.Dispose">
+            <summary>
+                Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+            <filterpriority>2</filterpriority>
+        </member>
+        <member name="M:OneTrueError.Client.Uploaders.UploadToOneTrueError.UploadReport(OneTrueError.Client.Contracts.ErrorReportDTO)">
+            <summary>
+                Upload the report to the web service.
+            </summary>
+            <param name="report">CreateReport to submit</param>
+        </member>
+        <member name="E:OneTrueError.Client.Uploaders.UploadToOneTrueError.UploadFailed">
+            <summary>
+                Failed to deliver DTO within the given parameters.
+            </summary>
+            <remarks>
+            </remarks>
+        </member>
+        <member name="M:OneTrueError.Client.Uploaders.UploadToOneTrueError.UploadFeedback(OneTrueError.Client.Contracts.FeedbackDTO)">
+            <summary>
+                Send feedback for a previously submitted error report.
+            </summary>
+            <param name="feedback">Feedback to send</param>
+            <remarks>
+                <para>
+                    Will be queued internally (in memory) if the OS reports that there are no Internet connection available.
+                </para>
+            </remarks>
+        </member>
+        <member name="M:OneTrueError.Client.Uploaders.UploadToOneTrueError.TryUploadFeedbackNow(OneTrueError.Client.Contracts.FeedbackDTO)">
+            <summary>
+                Try to upload a report directly
+            </summary>
+            <param name="feedback">Report to upload</param>
+            <exception cref="T:System.Net.WebException">No Internet connection is available; Destination server did not accept the report.</exception>
+        </member>
+        <member name="M:OneTrueError.Client.Uploaders.UploadToOneTrueError.TryUploadReportNow(OneTrueError.Client.Contracts.ErrorReportDTO)">
+            <summary>
+                Try to upload a report directly
+            </summary>
+            <param name="report">Report to upload</param>
+            <exception cref="T:System.Net.WebException">No internet connection is available; Destination server did not accept the report.</exception>
+        </member>
+        <member name="M:OneTrueError.Client.Uploaders.UploadToOneTrueError.Dispose(System.Boolean)">
+            <summary>
+                Dispose pattern
+            </summary>
+            <param name="isDisposing">Invoked from the dispose method.</param>
+        </member>
+        <member name="M:OneTrueError.Client.Uploaders.UploadToOneTrueError.CompressErrorReport(OneTrueError.Client.Contracts.ErrorReportDTO)">
+            <summary>
+                Compress an ErrorReport as JSON string
+            </summary>
+            <param name="errorReport">ErrorReport</param>
+            <returns>Compressed JSON representation of the ErrorReport.</returns>
+        </member>
+        <member name="M:OneTrueError.Client.Uploaders.UploadToOneTrueError.DeflateErrorReport(System.Byte[])">
+            <summary>
+                Deflate a compressed error report in JSON format
+            </summary>
+            <param name="errorReport">Compressed JSON errorReport</param>
+            <returns>JSON string decompressed</returns>
+        </member>
+        <member name="T:OneTrueError.Client.NamespaceDoc">
+            <summary>
+                <para>
+                    Welcome to the reporting library for OneTrueError. Read below the class list for more information about the
+                    library.
+                </para>
+                <para>
+                    This library is configured by using the <see cref="T:OneTrueError.Client.OneTrue" /> class. A minimal setup contains a single line:
+                </para>
+                <code>
+            OneTrue.Credentials("appKey", "sharedSecret");
+            //report 
+            </code>
+                <para>
+                    The appKey/sharedSecret can be found in our web once you have created an account: http://onetrueerror.com. The
+                    above
+                    line will not detect any exceptions automatically, you have to report each exception by yourself:
+                </para>
+                <code>
+            try
+            {
+                //some business
+            }
+            catch (Exception ex)
+            {
+                OneTrue.Report(ex);
+            }
+            </code>
+                <para>
+                    You can also include own context information by specifying a second argument:
+                </para>
+                <code>
+            try
+            {
+                //some business
+            }
+            catch (Exception ex)
+            {
+                OneTrue.Report(ex, yourDbEntity);
+            }
+            </code>
+                <para>
+                    You can read more about reporting in the <see cref="T:OneTrueError.Client.OneTrue" /> documentation.
+                </para>
+                <para>
+                    If you are interested in providing your own context information automatically you should start by reading
+                    the <see cref="N:OneTrueError.Client.ContextProviders" /> namespace and then add your own provider by using
+                    <c>OneTrue.Configuration.ContextProviders.Add()</c>.
+                </para>
+            </summary>
+            <seealso cref="T:OneTrueError.Client.OneTrue" />
+            <seealso cref="T:OneTrueError.Client.Config.OneTrueConfiguration" />
+        </member>
+        <member name="T:OneTrueError.Client.Reporters.NamespaceDoc">
+            <summary>
+                Reporters are the classes that detects unhandled exception and put them into the
+                OneTrueError pipeline.
+            </summary>
+        </member>
+        <member name="T:OneTrueError.Client.Reporters.ErrorReporterContext">
+            <summary>
+                Context supplied by error reports
+            </summary>
+            <remarks>
+                Used to be able to provide app specific context information (for instance HTTP apps can provide the HTTP
+                context)
+            </remarks>
+        </member>
+        <member name="M:OneTrueError.Client.Reporters.ErrorReporterContext.#ctor(System.Object,System.Exception)">
+            <summary>
+                Initializes a new instance of the <see cref="T:OneTrueError.Client.Reporters.ErrorReporterContext" /> class.
+            </summary>
+            <param name="reporter">The reporter.</param>
+            <param name="exception">The exception.</param>
+        </member>
+        <member name="P:OneTrueError.Client.Reporters.ErrorReporterContext.Reporter">
+            <summary>
+                Gets class which is sending the report
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.Reporters.ErrorReporterContext.Exception">
+            <summary>
+                Gets caught exception
+            </summary>
+        </member>
+        <member name="T:OneTrueError.Client.Reporters.IErrorReporterContext">
+            <summary>
+                contains context information which can be used during collection such as <c>HttpContext</c> (if the exception was
+                thrown during a HTTP request)
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.Reporters.IErrorReporterContext.Exception">
+            <summary>
+                Exception which was caused the error.
+            </summary>
+        </member>
+        <member name="P:OneTrueError.Client.Reporters.IErrorReporterContext.Reporter">
+            <summary>
+                Gets class which is sending the report ( so that we know which part of the system that caught the exception)
+            </summary>
+        </member>
+    </members>
+</doc>

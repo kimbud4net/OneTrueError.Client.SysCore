@@ -1,0 +1,24 @@
+{
+  "version": 2,
+  "exports": {
+    "OneTrueError.Client.SysCore/1.0.0": {
+      "type": "project",
+      "framework": ".NETFramework,Version=v4.6.1",
+      "compile": {
+        "bin/Debug/OneTrueError.Client.SysCore.dll": {}
+      },
+      "runtime": {
+        "../packages/Newtonsoft.Json.9.0.1/lib/net45/Newtonsoft.Json.dll": {},
+        "../packages/OneTrueError.Client.1.0.1/lib/net40/OneTrueError.Client.dll": {},
+        "bin/Debug/OneTrueError.Client.SysCore.dll": {}
+      },
+      "contentFiles": {
+        "bin/Debug/OneTrueError.Client.SysCore.pdb": {
+          "buildAction": "None",
+          "codeLanguage": "any",
+          "copyToOutput": true
+        }
+      }
+    }
+  }
+}

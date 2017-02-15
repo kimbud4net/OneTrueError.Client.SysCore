@@ -1,0 +1,210 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Griffin.Container.Mvc5</name>
+    </assembly>
+    <members>
+        <member name="T:Griffin.Container.Mvc5.ContainerRegistrarExtensions">
+            <summary>
+            Extension methods for the HTTP integration
+            </summary>
+        </member>
+        <member name="M:Griffin.Container.Mvc5.ContainerRegistrarExtensions.RegisterControllers(Griffin.Container.IContainerRegistrar,System.Reflection.Assembly)">
+            <summary>
+            Register all controllers 
+            </summary>
+            <param name="registrar">The registrar</param>
+            <param name="assembly">Assembly to scan.</param>
+        </member>
+        <member name="M:Griffin.Container.Mvc5.ContainerRegistrarExtensions.RegisterApiControllers(Griffin.Container.IContainerRegistrar,System.Reflection.Assembly)">
+            <summary>
+            Scan specified assembly after WebApi controllers.
+            </summary>
+            <param name="registrar">Container registrar to register the controllers in.</param>
+            <param name="assembly">Assembly to scan</param>
+            <example>
+            <code>
+            registrar.RegisterApiControllers(typeof(WebApiApplication).Assembly);
+            </code>
+            </example>
+        </member>
+        <member name="T:Griffin.Container.Mvc5.GriffinDependencyResolver">
+            <summary>
+            Griffin.Container implementation
+            </summary>
+        </member>
+        <member name="M:Griffin.Container.Mvc5.GriffinDependencyResolver.#ctor(Griffin.Container.IParentContainer)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Griffin.Container.Mvc5.GriffinDependencyResolver"/> class.
+            </summary>
+            <param name="container">The container.</param>
+        </member>
+        <member name="M:Griffin.Container.Mvc5.GriffinDependencyResolver.GetService(System.Type)">
+            <summary>
+            Resolves singly registered services that support arbitrary object creation.
+            </summary>
+            <returns>
+            The requested service or object.
+            </returns>
+            <param name="serviceType">The type of the requested service or object.</param>
+        </member>
+        <member name="M:Griffin.Container.Mvc5.GriffinDependencyResolver.GetServices(System.Type)">
+            <summary>
+            Resolves multiply registered services.
+            </summary>
+            <returns>
+            The requested services.
+            </returns>
+            <param name="serviceType">The type of the requested services.</param>
+        </member>
+        <member name="M:Griffin.Container.Mvc5.GriffinDependencyResolver.DisposeChildContainer">
+            <summary>
+            Dispose current child container (if any)
+            </summary>
+        </member>
+        <member name="P:Griffin.Container.Mvc5.GriffinDependencyResolver.ChildContainer">
+            <summary>
+            Gets current child container
+            </summary>
+        </member>
+        <member name="T:Griffin.Container.Mvc5.GriffinWebApiDependencyResolver">
+             <summary>
+             WebApi implementation
+             </summary>
+             <remarks>
+             <example>
+             You can get the current scope in this way:
+             <code>
+             <![CDATA[
+             var scopeTracker = (IDependencyScopeTracker)GlobalConfiguration.Configuration.DependencyResolver;
+             var currentScope = scopeTracker.Current;
+             var someService = currentScope.Resolve<ISomeScopedService>();
+             ]]>
+             </code>
+             </example>
+             </remarks>
+             <example>
+             <code>
+             var registrar = new ContainerRegistrar();
+             
+             // Sample registration of business classes
+             registrar.RegisterModules(typeof(SomeRepositoryClass).Assembly);
+             
+             // the api controllers
+             registrar.RegisterApiControllers(typeof(WebApiApplication).Assembly);
+            
+             // build the container
+             _container = registrar.Build();
+             
+             // Configure Dependency Injection in WebApi
+             GlobalConfiguration.Configuration.DependencyResolver = new GriffinWebApiDependencyResolver(_container);
+             </code>
+             </example>
+        </member>
+        <member name="T:Griffin.Container.Mvc5.IDependencyScopeTracker">
+            <summary>
+            Extension for the WebApiDependencyResolver.
+            </summary>
+            <remarks>Makes it possible to access the current thread's <see cref="T:System.Web.Http.Dependencies.IDependencyScope"/>.</remarks>
+            <seealso cref="T:Griffin.Container.Mvc5.GriffinWebApiDependencyResolver"/>
+        </member>
+        <member name="P:Griffin.Container.Mvc5.IDependencyScopeTracker.Current">
+            <summary>
+            Gets the current threads dependency scope
+            </summary>
+        </member>
+        <member name="M:Griffin.Container.Mvc5.GriffinWebApiDependencyResolver.#ctor(Griffin.Container.IParentContainer)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Griffin.Container.Mvc5.GriffinWebApiDependencyResolver"/> class.
+            </summary>
+            <param name="container">The container.</param>
+        </member>
+        <member name="M:Griffin.Container.Mvc5.GriffinWebApiDependencyResolver.Dispose">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+            <filterpriority>2</filterpriority>
+        </member>
+        <member name="M:Griffin.Container.Mvc5.GriffinWebApiDependencyResolver.GetService(System.Type)">
+            <summary>
+            Get a service
+            </summary>
+            <param name="serviceType">Type of service to locate</param>
+            <returns>Implementation if found; otherwise <c>null</c>.</returns>
+        </member>
+        <member name="M:Griffin.Container.Mvc5.GriffinWebApiDependencyResolver.GetServices(System.Type)">
+            <summary>
+            Find all matching implementations
+            </summary>
+            <param name="serviceType">Type of service to locate</param>
+            <returns>Implementations if found; otherwise an empty collection.</returns>
+        </member>
+        <member name="M:Griffin.Container.Mvc5.GriffinWebApiDependencyResolver.BeginScope">
+            <summary>
+            Begins the scope.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:Griffin.Container.Mvc5.GriffinWebApiDependencyResolver.Current">
+            <summary>
+            Gets the current threads dependency scope
+            </summary>
+        </member>
+        <member name="T:Griffin.Container.Mvc5.ContainerModule">
+            <summary>
+            disposes child container in <see cref="T:Griffin.Container.Mvc5.GriffinDependencyResolver"/> when request ends.
+            </summary>
+        </member>
+        <member name="M:Griffin.Container.Mvc5.ContainerModule.Init(System.Web.HttpApplication)">
+            <summary>
+            Initializes a module and prepares it to handle requests.
+            </summary>
+            <param name="context">An <see cref="T:System.Web.HttpApplication"/> that provides access to the methods, properties, and events common to all application objects within an ASP.NET application </param>
+        </member>
+        <member name="M:Griffin.Container.Mvc5.ContainerModule.Dispose">
+            <summary>
+            Disposes of the resources (other than memory) used by the module that implements <see cref="T:System.Web.IHttpModule"/>.
+            </summary>
+        </member>
+        <member name="M:Griffin.Container.Mvc5.ContainerModule.Register">
+            <summary>
+            Register the module in the pipeline
+            </summary>
+        </member>
+        <member name="T:Griffin.Container.Mvc5.NamespaceDoc">
+            <summary>
+            ASP.NET MVC5 integration package for Griffin.Container.
+            </summary>
+            <remarks>
+            <para>
+            This package contains both Mvc5 and WebApi2 implementations.
+            </para>
+            <para>
+            Usage: Add <c>GriffinContainerConfig.Setup()</c> in your global.asax. Then go to <c>App_Start\GriffinContainerConfig.cs</c> to configure the container.
+            </para>
+            </remarks>
+        </member>
+        <member name="T:Griffin.Container.Mvc5.Scope">
+            <summary>
+            Our dependency scope implementation
+            </summary>
+        </member>
+        <member name="M:Griffin.Container.Mvc5.Scope.#ctor(Griffin.Container.IChildContainer,System.Action)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Griffin.Container.Mvc5.Scope"/> class.
+            </summary>
+            <param name="container">The scoped container.</param>
+            <param name="disposeAction">The dispose action (invoked when the scope is disposed).</param>
+        </member>
+        <member name="M:Griffin.Container.Mvc5.Scope.Finalize">
+            <summary>
+            Finalizes an instance of the <see cref="T:Griffin.Container.Mvc5.Scope"/> class.
+            </summary>
+        </member>
+        <member name="M:Griffin.Container.Mvc5.Scope.Dispose">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+        </member>
+    </members>
+</doc>

@@ -1,0 +1,65 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Client", "Client", "{9923D21B-9221-4A9E-9CF4-B9E8CAC9CA86}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OneTrueError.Client.SysCore", "OneTrueError.Client.SysCore\OneTrueError.Client.SysCore.csproj", "{7FA40231-30F4-4FA9-BEF7-36771B262350}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OneTrueError.Client.SysCore.Demo", "OneTrueError.Client.SysCore.Demo\OneTrueError.Client.SysCore.Demo.csproj", "{615C39A9-CF70-48EA-9DBB-19E546AF405A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Client.NetCoreMvc", "Client.NetCoreMvc", "{F4974EF8-89F2-4258-8E76-AAAC7BE6CC90}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "OneTrueError.Client.SysCore.NetCoreMvc", "OneTrueError.Client.SysCore.NetCoreMvc\OneTrueError.Client.SysCore.NetCoreMvc.xproj", "{7C7FF01E-1960-4CB6-A6CB-53D62D8B075B}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "OneTrueError.Client.SysCore.NetCoreMvc.Demo", "OneTrueError.Client.SysCore.NetCoreMvc.Demo\OneTrueError.Client.SysCore.NetCoreMvc.Demo.xproj", "{6796FF04-0907-4F8D-8141-1493F208D3CF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F11D6BEA-C726-4109-8B4C-410AA57E1040}"
+	ProjectSection(SolutionItems) = preProject
+		LICENSE.md = LICENSE.md
+		ReadMe.md = ReadMe.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		QAS|Any CPU = QAS|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7FA40231-30F4-4FA9-BEF7-36771B262350}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7FA40231-30F4-4FA9-BEF7-36771B262350}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7FA40231-30F4-4FA9-BEF7-36771B262350}.QAS|Any CPU.ActiveCfg = Release|Any CPU
+		{7FA40231-30F4-4FA9-BEF7-36771B262350}.QAS|Any CPU.Build.0 = Release|Any CPU
+		{7FA40231-30F4-4FA9-BEF7-36771B262350}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7FA40231-30F4-4FA9-BEF7-36771B262350}.Release|Any CPU.Build.0 = Release|Any CPU
+		{615C39A9-CF70-48EA-9DBB-19E546AF405A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{615C39A9-CF70-48EA-9DBB-19E546AF405A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{615C39A9-CF70-48EA-9DBB-19E546AF405A}.QAS|Any CPU.ActiveCfg = Release|Any CPU
+		{615C39A9-CF70-48EA-9DBB-19E546AF405A}.QAS|Any CPU.Build.0 = Release|Any CPU
+		{615C39A9-CF70-48EA-9DBB-19E546AF405A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{615C39A9-CF70-48EA-9DBB-19E546AF405A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7C7FF01E-1960-4CB6-A6CB-53D62D8B075B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C7FF01E-1960-4CB6-A6CB-53D62D8B075B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C7FF01E-1960-4CB6-A6CB-53D62D8B075B}.QAS|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C7FF01E-1960-4CB6-A6CB-53D62D8B075B}.QAS|Any CPU.Build.0 = Debug|Any CPU
+		{7C7FF01E-1960-4CB6-A6CB-53D62D8B075B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C7FF01E-1960-4CB6-A6CB-53D62D8B075B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6796FF04-0907-4F8D-8141-1493F208D3CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6796FF04-0907-4F8D-8141-1493F208D3CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6796FF04-0907-4F8D-8141-1493F208D3CF}.QAS|Any CPU.ActiveCfg = Debug|Any CPU
+		{6796FF04-0907-4F8D-8141-1493F208D3CF}.QAS|Any CPU.Build.0 = Debug|Any CPU
+		{6796FF04-0907-4F8D-8141-1493F208D3CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6796FF04-0907-4F8D-8141-1493F208D3CF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{7FA40231-30F4-4FA9-BEF7-36771B262350} = {9923D21B-9221-4A9E-9CF4-B9E8CAC9CA86}
+		{615C39A9-CF70-48EA-9DBB-19E546AF405A} = {9923D21B-9221-4A9E-9CF4-B9E8CAC9CA86}
+		{7C7FF01E-1960-4CB6-A6CB-53D62D8B075B} = {F4974EF8-89F2-4258-8E76-AAAC7BE6CC90}
+		{6796FF04-0907-4F8D-8141-1493F208D3CF} = {F4974EF8-89F2-4258-8E76-AAAC7BE6CC90}
+	EndGlobalSection
+EndGlobal
